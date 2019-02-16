@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zsl.management.mapper.UserMapper">
+
+    <select id="selectByMobileNo" resultType="com.zsl.common.entity.User">
+    select * from yien_user where user_mobile_no=#{user_mobile_no}
+  </select>
+    
+    <select id="selectOneByUserId" resultType="com.zsl.common.entity.User">
+        select * from yien_user where user_id=#{userId}
+    </select>
+    
+    <select id="selectUserIdCount" resultType="java.lang.Integer">
+        select count(*) from yien_user where user_id = #{userId}
+    </select>
+
+    <insert id="insertOne" useGeneratedKeys="true" keyProperty="id">
+    insert into yien_user(id,user_id,user_name,user_alias_name,user_password,user_sex,user_card_no,user_email,user_mobile_no,user_integral,user_amount,user_birth,user_head_image,user_state,user_address,user_level,raw_add_time)
+            values
+            (null,#{userId},#{userName},#{userAliasName},#{userPassword},#{userSex},#{userCardNo},#{userEmail},#{userMobileNo},#{userIntegral},#{userAmount},#{userBirth},#{userHeadImage},#{userState},#{userAddress},#{userLevel},#{rawAddTime})
+  </insert>
+
+    <update id="updateOne">
+        update yien_user set user_id=#{userId},user_name=#{userName},user_alias_name=#{userAliasName},user_password=#{userPassword},user_sex=#{userSex},user_card_no=#{userCardNo},user_email=#{userEmail},user_mobile_no=#{userMobileNo},
+                             user_integral=#{userIntegral},user_amount=#{userAmount},user_birth=#{userBirth},user_head_image=#{userHeadImage},user_state=#{userState},user_address=#{userAddress},user_level=#{userLevel},raw_update_time=#{rawUpdateTime}
+                         where id=#{id}
+    </update>
+    
+    <delete id="deleteBatchByUserIds">
+        delete from yien_user
+            <foreach collection="userIds" item="item_id" open="where user_id in(" close=")" separator=",">
+                #{item_id}
+            </foreach>
+    </delete>
+
+    <update id="updateByPrimaryKeySelective" parameterType="com.zsl.common.entity.User">
+        update yien_user
+        <set>
+            <if test="userId != null">
+                user_id = #{userId},
+            </if>
+            <if test="userName != null">
+                user_name = #{userName},
+            </if>
+            <if test="userAliasName != null">
+                user_alias_name = #{userAliasName},
+            </if>
+            <if test="userPassword != null">
+                user_password = #{userPassword},
+            </if>
+            <if test="userSex != null">
+                user_sex = #{userSex},
+            </if>
+            <if test="userCardNo != null">
+                user_card_no = #{userCardNo},
+            </if>
+            <if test="userEmail != null">
+                user_email = #{userEmail},
+            </if>
+            <if test="userMobileNo != null">
+                user_mobile_no = #{userMobileNo},
+            </if>
+            <if test="userIntegral != null">
+                user_integral = #{userIntegral},
+            </if>
+            <if test="userAmount != null">
+                user_amount = #{userAmount},
+            </if>
+            <if test="userBirth != null">
+                user_birth = #{userBirth},
+            </if>
+            <if test="userHeadImage != null">
+                user_head_image = #{userHeadImage},
+            </if>
+            <if test="userState != null">
+                user_state = #{userState},
+            </if>
+            <if test="userAddress != null">
+                user_address = #{userAddress},
+            </if>
+            <if test="userLevel != null">
+                user_level = #{userLevel},
+            </if>
+            <if test="rawAddTime != null">
+                raw_add_time = #{rawAddTime},
+            </if>
+            <if test="rawUpdateTime != null">
+                raw_update_time = #{rawUpdateTime},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <select id="selectAll" resultType="com.zsl.common.entity.User">
+        select * from yien_user
+    </select>
+</mapper>

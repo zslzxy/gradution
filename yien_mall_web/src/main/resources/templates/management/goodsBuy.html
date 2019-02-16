@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<!--商品的购买的选择、选择地址的页面-->
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:shiro="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+
+    <title>Electro - HTML Ecommerce Template</title>
+
+    <script th:src="@{/webjars/jquery/1.12.3/jquery.js}"></script>
+    <script th:src="@{/webjars/bootstrap/3.3.7/js/bootstrap.js}"></script>
+    <script th:src="@{/js/html5shiv.min.js}"></script>
+    <script th:src="@{/js/respond.min.js}"></script>
+    <link th:href="@{/webjars/bootstrap/3.3.7/css/bootstrap.css}" rel="stylesheet">
+    <link type="text/css" rel="stylesheet" th:href="@{/static/css/slick.css}"/>
+    <link type="text/css" rel="stylesheet" th:href="@{/static/css/slick-theme.css}"/>
+    <link type="text/css" rel="stylesheet" th:href="@{/static/css/nouislider.min.css}"/>
+    <link rel="stylesheet" th:href="@{/static/css/font-awesome.min.css}">
+    <link type="text/css" rel="stylesheet" th:href="@{/static/css/style.css}"/>
+
+    <script>
+        function toShopCar() {
+            window.location.href = "/shopCar/toShopCar?userId=" + $("#userId_id_val").text()
+        }
+
+        function toKill() {
+            $.ajax({
+                url: "/kill/toKillAjax",
+                success: function (result) {
+                    if (result.code == 300) {
+                        alert(result.info)
+                    } else {
+                        window.location.href = ""+result.info
+                    }
+                }
+            })
+            return false
+        }
+
+        /**
+         * 自动加载用户地址
+         */
+        $(function () {
+            $.ajax({
+                url: '/user/selectAddressByUserId/' + $("#userId_id_val").text(),
+                type: "GET",
+                success: function (result) {
+                    console.log(result)
+                    $.each(result, function (index, value) {
+                        var checkBoxTd = $("<td><input type='radio' name='my_address_name' class='check_item'/></td>");
+                        var addressPlace = $("<td></td>").append(value.addressPlace);
+                        var addressMobile = $("<td></td>").append(value.addressMobile);
+                        var addressName = $("<td></td>").append(value.addressName);
+                        var addressId = $("<td hidden='hidden'></td>").append(value.addressId);
+
+                        $("<tr></tr>")
+                            .append(checkBoxTd)
+                            .append(addressId)
+                            .append(addressPlace)
+                            .append(addressMobile)
+                            .append(addressName)
+                            .appendTo("#tab_info_accept_tbody");
+                    })
+                },
+            });
+        })
+
+        /**
+         * 点击确认选择的地址以后，将选择的地址加入到订单详情中
+         */
+        function chooseAddress() {
+            var address_id = $(".check_item:checked").parent().parent().find("td:eq(1)").text()
+            var address_place = $(".check_item:checked").parent().parent().find("td:eq(2)").text()
+            var address_mobile = $(".check_item:checked").parent().parent().find("td:eq(3)").text()
+            var address_name = $(".check_item:checked").parent().parent().find("td:eq(4)").text()
+            $("#table_choose_address").show()
+            $("#order_address_place").append(address_place)
+            $("#order_address_name").append(address_name)
+            $("#order_address_mobile").append(address_mobile)
+            $("#order_address_id").append(address_id)
+        }
+
+        /**
+         * 提交数据，将 地址的唯一索引、商品的唯一索引、用户的唯一索引传入到后台，生成对应的用户的订单
+         */
+        function submitOrder() {
+            var nowGoodsAmount = $("#nowGoodsAmount").text()
+            //得到用户收货地址的唯一索引
+            var addressId = $("#order_address_id").text()
+            //得到用户个人信息表中的唯一索引
+            var userId = $("#userId_id_val").text()
+            //得到商品的唯一索引
+            var goodsId = $("#goods_id_val").text()
+            //得到订单的发货方式
+            var couriesType = $("#couries_code").val()
+            //得到订单的购买数量
+            var goodsNum = $("#goodsNum_input").val()
+            //得到对应的token
+            var token = $("#token").val()
+            var code = 100;
+
+            var orderId;
+            var info;
+            $.ajax({
+                url: '/order/createOrdinaryOrder',
+                type: "POST",
+                async: false,
+                data: {
+                    addressId: addressId,
+                    userId: userId,
+                    goodsId: goodsId,
+                    couriesType: couriesType,
+                    goodsNum: goodsNum,
+                    nowGoodsAmount: nowGoodsAmount,
+                    token: token
+                },
+                success: function (result) {
+                    console.log(result)
+                    code = result.code
+                    orderId = result.extend.orindaryDto.orderId
+                    info = result.info
+                }
+            })
+
+            //如果订单创建成功，则跳转到个人主页，去进行支付操作
+            if (code == 100) {
+                var bool = confirm("清单创建成功，是否立即支付？")
+                if (bool == true) {
+                    window.location.href = "/pay/toPay/"+orderId
+                    return false
+                } else {
+                    window.location.href = "/user/myIndex"
+                    return false
+                }
+            }
+            alert(info)
+            return false
+        }
+    </script>
+</head>
+<body>
+<span id="userId_id_val" hidden="hidden"><shiro:principal property="userId"/></span>
+<!-- HEADER -->
+<header>
+    <!-- 最上面的一排 -->
+    <div id="top-header">
+        <div class="container">
+            <ul class="header-links pull-left">
+                <li><a href="#"><i class="fa fa-phone"></i> +18875150531</a></li>
+                <li><a href="#"><i class="fa fa-envelope-o"></i> zhangzhou@yiji.com</a></li>
+                <li><a th:href="@{http://www.cque.edu.cn/}"><i class="fa fa-map-marker"></i> 重庆 重庆第二师范学院</a></li>
+            </ul>
+            <ul class="header-links pull-right" shiro:user="">
+                <li><a href="#"><i class="fa fa-dollar"></i>
+                    <shiro:principal property="userName"/>
+                    <a th:href="@{/login/logout}">，注销 </a></a></li>
+                <li><a th:href="@{/user/myIndex}"><i class="glyphicon glyphicon-user"></i> 我的账户</a></li>
+                <li shiro:hasAnyRoles="admin"><a  th:href="@{/admin/toAdmin.html}"> <i class="fa fa-user-o"></i>管理员界面 </a></li>
+                <li shiro:hasAnyRoles="merchant"><a th:href="@{/merchants/toMerchants}"> <i class="fa fa-user-o"></i>商家界面 </a></li>
+            </ul>
+            <ul class="header-links pull-right" shiro:notAuthenticated="">
+                <li><a th:href="@{/login/toLogin}"><i class="fa fa-user-o"></i>登录 </a></li>
+                <li><a th:href="@{/regist/toRegist}"><i class="fa fa-user-o"></i>注册 </a></li>
+            </ul>
+        </div>
+    </div>
+    <!-- /TOP HEADER -->
+
+    <!-- MAIN HEADER -->
+    <div id="header">
+        <!-- container -->
+        <div class="container">
+            <!-- row -->
+            <div class="row">
+                <!-- LOGO -->
+                <div class="col-md-3">
+                    <div class="header-logo">
+                        <a th:href="@{/index}" class="logo">
+                            <img th:src="@{/static/img/logo2.jpg}" alt="" height="70" width="150">
+                        </a>
+                    </div>
+                </div>
+                <!-- /LOGO -->
+
+                <!-- SEARCH BAR -->
+                <div class="col-md-6">
+                    <div class="header-search">
+                        <form>
+                            <select class="input-select">
+                                <option value="0">全部商品</option>
+                                <option value="6">图书</option>
+                                <option value="7">纸巾</option>
+                                <option value="8">生活用品</option>
+                            </select>
+                            <input class="input" placeholder="请输入您需要搜索的商品">
+                            <button class="search-btn">搜索</button>
+                        </form>
+                    </div>
+                </div>
+                <!-- /SEARCH BAR -->
+
+                <!-- ACCOUNT -->
+                <div class="col-md-3 clearfix">
+                    <div class="header-ctn">
+
+                        <div class="dropdown">
+                            <a href="javascript:void(0)" onclick="toKill()">
+                                <i class="glyphicon glyphicon-indent-right"></i>
+                                <span>秒杀专场</span>
+                                <div class="qty">k</div>
+                            </a>
+                        </div>
+
+                        <div class="dropdown">
+                            <a href="javascript:void(0)" onclick="toShopCar()" id="to_shopCar">
+                                <i class="fa fa-shopping-cart"></i>
+                                <span>购物车</span>
+                                <div class="qty">3</div>
+                            </a>
+                        </div>
+                        <!-- /Cart -->
+
+                    </div>
+                </div>
+                <!-- /ACCOUNT -->
+            </div>
+            <!-- row -->
+        </div>
+        <!-- container -->
+    </div>
+    <!-- /MAIN HEADER -->
+</header>
+<!-- /HEADER -->
+
+<form>
+    <input type="hidden" name="token" id="token" th:value="${session.token}">
+</form>
+
+<!-- SECTION -->
+<div class="section">
+    <!-- container -->
+    <div class="container">
+        <!-- row -->
+        <div class="row">
+
+            <div class="col-md-7">
+                <!-- 选择地址模块 -->
+                <div class="billing-details">
+                    <div class="section-title">
+                        <h3 class="title">选择收货地址：</h3>
+                    </div>
+                    <table class="table table-hover">
+                        <thead>
+                        <th></th>
+                        <th>地址</th>
+                        <th>电话</th>
+                        <th>姓名</th>
+                        <th hidden="hidden">收货地址唯一索引</th>
+                        </thead>
+                        <tbody id="tab_info_accept_tbody">
+                        </tbody>
+                    </table>
+                </div>
+                <a th:href="@{/user/toUserAddress}" class="btn btn-default">新增收货地址</a>
+                <a class="btn btn-default" href="javascript:void(0)" onclick="chooseAddress()"
+                   id="confirm_choose_address">确认收货地址</a>
+                <!-- /选择地址模块 -->
+
+
+            </div>
+
+            <!-- Order Details -->
+            <div class="col-md-5 order-details">
+                <div class="section-title text-center">
+                    <h3 class="title">订单信息</h3>
+                </div>
+                <div class="order-summary">
+
+                    <div class="order-col">
+                        <div><strong>商品名称</strong></div>
+                        <div><strong th:text="${goods.goodsName}"></strong></div>
+                        <div hidden="hidden"><strong id="goods_id_val" th:text="${goods.goodsId}"></strong></div>
+                    </div>
+                    <div class="order-products">
+                        <div class="order-col">
+                            <div><strong>商品现价：</strong></div>
+                            <div><strong><span style="color: red">￥</span><span style="color: red" id="nowGoodsAmount"
+                                                                                th:text="${goods.goodsNowAmount}"></span></strong>
+                            </div>
+                        </div>
+                        <div class="order-col">
+                            <div><strong>商品原价:</strong></div>
+                            <div><strong>￥<span th:text="${goods.goodsDefaultAmount}"></span></strong></div>
+                        </div>
+                    </div>
+                    <div class="add-to-cart">
+                        <div class="qty-label">
+                            <div><strong>购买数量：</strong></div>
+                            <div class="input-number">
+                                <input id="goodsNum_input" type="number" th:value="1">
+                                <span class="qty-up">+</span>
+                                <span class="qty-down">-</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="order-col">
+                        <div><strong>邮费</strong></div>
+                        <div><strong>包邮</strong></div>
+                    </div>
+                    <div class="order-col">
+                        <div><strong>快递方式</strong></div>
+                        <div class="product-options">
+                            <label>
+                                <select class="input-select" id="couries_code">
+                                    <option value="ZT">中通快递</option>
+                                    <option value="YT">圆通快递</option>
+                                    <option value="SF">顺丰快递</option>
+                                    <option value="YD">韵达快递</option>
+                                    <option value="YZ">邮政快递</option>
+                                    <option value="HT">汇通快递</option>
+                                </select>
+                            </label>
+                        </div>
+                    </div>
+                    <!--显示选择的快递地址-->
+                    <div hidden="hidden" id="table_choose_address">
+                        <table class="table table-hover">
+                            <tr>
+                                <td>收货地址</td>
+                                <td id="order_address_place"></td>
+                            </tr>
+                            <tr>
+                                <td>收货人姓名</td>
+                                <td id="order_address_name"></td>
+                            </tr>
+                            <tr>
+                                <td>收货人电话</td>
+                                <td id="order_address_mobile"></td>
+                            </tr>
+                            <tr hidden="hidden">
+                                <td>收货地址唯一索引</td>
+                                <td id="order_address_id"></td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+                <a href="javascript:void(0)" onclick="submitOrder()" class="primary-btn order-submit">确认提交订单</a>
+            </div>
+            <!-- /Order Details -->
+        </div>
+        <!-- /row -->
+    </div>
+    <!-- /container -->
+</div>
+<!-- /SECTION -->
+
+
+<!-- 脚部文件 -->
+<footer id="footer" th:fragment="footer">
+    <!-- top footer -->
+    <div class="section">
+        <!-- container -->
+        <div class="container">
+            <!-- row -->
+            <div class="row">
+                <div class="col-md-4 col-xs-6">
+                    <div class="footer">
+                        <h3 class="footer-title">关于我们</h3>
+                        <p>易恩商城秉持着方便、快捷、时尚、大气的原则，为客户提供更加优质的购物体验。</p>
+                        <ul class="footer-links">
+                            <li><a href="#"><i class="fa fa-map-marker"></i>重庆市南岸区</a></li>
+                            <li><a href="#"><i class="fa fa-phone"></i>+021-95-51-84</a></li>
+                            <li><a href="#"><i class="fa fa-envelope-o"></i>zhangzhou@yiji.com</a></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="col-md-8 col-xs-6">
+                    <div class="col-md-4 col-xs-6">
+                        <div class="footer">
+                            <h3 class="footer-title">产品</h3>
+                            <ul class="footer-links">
+                                <li><a href="#">商家入驻</a></li>
+                                <li><a href="#">产品投入</a></li>
+                                <li><a href="#">市场营销</a></li>
+                                <li><a href="#">市场拓展</a></li>
+                                <li><a href="#">欢迎光临</a></li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="col-md-4 col-xs-6">
+                        <div class="footer">
+                            <h3 class="footer-title">信息</h3>
+                            <ul class="footer-links">
+                                <li><a href="#">关于我们</a></li>
+                                <li><a href="#">加入我们</a></li>
+                                <li><a href="#">优材招聘</a></li>
+                                <li><a href="#">团队合作</a></li>
+                                <li><a href="#">人才培养</a></li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="col-md-4 col-xs-6">
+                        <div class="footer">
+                            <h3 class="footer-title">服务</h3>
+                            <ul class="footer-links">
+                                <li><a href="#">账号信息</a></li>
+                                <li><a href="#">异常描述</a></li>
+                                <li><a href="#">投诉意见</a></li>
+                                <li><a href="#">在线客服</a></li>
+                                <li><a href="#">有朋自远方来，不亦乐乎</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- /row -->
+        </div>
+        <!-- /container -->
+    </div>
+    <!-- /top footer -->
+
+</footer>
+<!-- /脚部文件 -->
+
+<script th:src="@{/static/js/slick.min.js}"></script>
+<script th:src="@{/static/js/nouislider.min.js}"></script>
+<script th:src="@{/static/js/jquery.zoom.min.js}"></script>
+<script th:src="@{/ststic/js/main.js}"></script>
+
+</body>
+</html>

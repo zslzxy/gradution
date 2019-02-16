@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zsl.management.mapper.GoodsMapper">
+
+    <insert id="insertGoods" useGeneratedKeys="true" keyProperty="id">
+        insert into yien_goods(goods_id,goods_merchants_id,goods_merchants_name,goods_name,goods_now_amount,goods_default_amount,goods_prod_place,
+                                goods_prod_time,goods_shelf_life,goods_expir_time,goods_desc,goods_detail1,goods_detail2,goods_detail3,goods_image1,
+                                goods_image2,goods_image3,goods_type_id,goods_state,goods_sell_time,goods_discontinued_time,goods_inventory,raw_add_time)
+		values
+		                        (#{goodsId},#{goodsMerchantsId},#{goodsMerchantsName},#{goodsName},#{goodsNowAmount},#{goodsDefaultAmount},#{goodsProdPlace},
+		                        #{goodsProdTime},#{goodsShelfLife},#{goodsExpirTime},#{goodsDesc},#{goodsDetail1},#{goodsDetail2},#{goodsDetail3},#{goodsImage1},
+		                        #{goodsImage2},#{goodsImage3},#{goodsTypeId},#{goodsState},#{goodsSellTime},#{goodsDiscontinuedTime},#{goodsInventory},#{rawAddTime})
+
+    </insert>
+    
+    <select id="selectAllGoods" resultType="com.zsl.common.entity.Goods">
+        select * from yien_goods
+    </select>
+
+    <select id="selectGoodsByGoodsId" resultType="com.zsl.common.entity.Goods">
+        select * from yien_goods where goods_id = #{goodsId}
+    </select>
+
+    <delete id="deleteGoodsByGoodsId">
+        delete from yien_goods where goods_id = #{goodsId}
+    </delete>
+
+    <select id="selectAllGoodsByGoodsTypeId" resultType="com.zsl.common.entity.Goods">
+        select * from yien_goods where goods_type_id = #{goodsTypeId}
+    </select>
+
+    <update id="updateGoodsByGoodsId">
+        update yien_goods
+        <set>
+            <if test="goodsId != null">
+                goods_id = #{goodsId},
+            </if>
+            <if test="goodsMerchantsId != null">
+                goods_merchants_id = #{goodsMerchantsId},
+            </if>
+            <if test="goodsMerchantsName != null">
+                goods_merchants_name = #{goodsMerchantsName},
+            </if>
+            <if test="goodsName != null">
+                goods_name = #{goodsName},
+            </if>
+            <if test="goodsNowAmount != null">
+                goods_now_amount = #{goodsNowAmount},
+            </if>
+            <if test="goodsDefaultAmount != null">
+                goods_default_amount = #{goodsDefaultAmount},
+            </if>
+            <if test="goodsProdPlace != null">
+                goods_prod_place = #{goodsProdPlace},
+            </if>
+            <if test="goodsProdTime != null">
+                goods_prod_time = #{goodsProdTime},
+            </if>
+            <if test="goodsShelfLife != null">
+                goods_shelf_life = #{goodsShelfLife},
+            </if>
+            <if test="goodsExpirTime != null">
+                goods_expir_time = #{goodsExpirTime},
+            </if>
+            <if test="goodsDesc != null">
+                goods_desc = #{goodsDesc},
+            </if>
+            <if test="goodsDetail1 != null">
+                goods_detail1 = #{goodsDetail1},
+            </if>
+            <if test="goodsDetail2 != null">
+                goods_detail2 = #{goodsDetail2},
+            </if>
+            <if test="goodsDetail3 != null">
+                goods_detail3 = #{goodsDetail3},
+            </if>
+            <if test="goodsImage1 != null">
+                goods_image1 = #{goodsImage1},
+            </if>
+            <if test="goodsImage2 != null">
+                goods_image2 = #{goodsImage2},
+            </if>
+            <if test="goodsImage3 != null">
+                goods_image3 = #{goodsImage3},
+            </if>
+            <if test="goodsTypeId != null">
+                goods_type_id = #{goodsTypeId},
+            </if>
+            <if test="goodsState != null">
+                goods_state = #{goodsState},
+            </if>
+            <if test="goodsSellTime != null">
+                goods_sell_time = #{goodsSellTime},
+            </if>
+            <if test="goodsDiscontinuedTime != null">
+                goods_discontinued_time = #{goodsDiscontinuedTime},
+            </if>
+            <if test="goodsInventory != null">
+                goods_inventory = #{goodsInventory},
+            </if>
+            <if test="rawUpdateTime != null">
+                raw_update_time = #{rawUpdateTime}
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <select id="selectGoodsByMerchantsId" resultType="com.zsl.common.entity.Goods">
+        select * from yien_goods where goods_merchants_id=#{merchantsId}
+    </select>
+    
+
+</mapper>

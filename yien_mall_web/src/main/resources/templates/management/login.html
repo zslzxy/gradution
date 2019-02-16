@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<!--商品的购买的选择、填写地址的页面-->
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:shiro="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+
+    <title>易恩商城欢迎您</title>
+
+    <script th:src="@{/webjars/jquery/1.12.3/jquery.js}"></script>
+    <script th:src="@{/webjars/bootstrap/3.3.7/js/bootstrap.js}"></script>
+    <script th:src="@{/js/html5shiv.min.js}"></script>
+    <script th:src="@{/js/respond.min.js}"></script>
+    <link th:href="@{/webjars/bootstrap/3.3.7/css/bootstrap.css}" rel="stylesheet">
+    <link type="text/css" rel="stylesheet" th:href="@{/static/css/slick.css}"/>
+    <link type="text/css" rel="stylesheet" th:href="@{/static/css/slick-theme.css}"/>
+    <link type="text/css" rel="stylesheet" th:href="@{/static/css/nouislider.min.css}"/>
+    <link rel="stylesheet" th:href="@{/static/css/font-awesome.min.css}">
+    <link type="text/css" rel="stylesheet" th:href="@{/static/css/style.css}"/>
+    <script>
+        function toKill() {
+            $.ajax({
+                url: "/kill/toKillAjax",
+                success: function (result) {
+                    if (result.code == 300) {
+                        alert(result.info)
+                    } else {
+                        window.location.href = ""+result.info
+                    }
+                }
+            })
+            return false
+        }
+
+        /**
+         * 点击搜索按钮以后，进行商品的search查询操作
+         */
+        $(document).on("click","#my_search_btn",function () {
+            var text = $("#search_value").val()
+            var type = $("#search_option option:selected").val()
+            if (type == 0) {
+                findByAllGoods(text)
+            } else {
+                findByGoodsNameAndGoodsTypeId(text, type)
+            }
+        })
+
+        /**
+         * 搜索框，选择搜索全部的请求发送
+         * @param goodsNameValue
+         */
+        function findByAllGoods(goodsNameValue) {
+            $.ajax({
+                url: "/search/findByAllGoods",
+                type: "POST",
+                data: {
+                    goodsNameValue: goodsNameValue
+                },
+                success: function (result) {
+                    eachGoods(result)
+                }
+            })
+        }
+
+        /**
+         * 搜索框，选择搜索对应类型的商品的时候进行发送请求
+         * @param goodsNameValue
+         * @param goodsTypeId
+         */
+        function findByGoodsNameAndGoodsTypeId(goodsNameValue, goodsTypeId) {
+            $.ajax({
+                url: "/search/findByGoodsNameAndGoodsTypeId",
+                type: "POST",
+                data: {
+                    goodsNameValue: goodsNameValue,
+                    goodsTypeId: goodsTypeId,
+                },
+                success: function (result) {
+                    eachGoods(result)
+                }
+            })
+        }
+
+        /**
+         * 遍历商品
+         */
+        function eachGoods(goods) {
+            $("#goods_list").empty();
+            $.each(goods, function (index, value) {
+                var name = value.goodsName.substring(0,18)
+                var shop = $(
+                    "<div class='col-lg-3'  style='margin-top:70px;'>" +
+                    "<div class='shop-img'>" +
+                    "<a href='/goods/goodDetail/" + value.goodsId + "'>" +
+                    "<img name='img' src=' " + value.goodsImage1 + " ' alt='' width='250px' height='250px'>" +
+                    "</a>" +
+                    "<a href='/goods/goodDetail/" + value.goodsId + "' class='cta-btn'>"+name+"</a>" +
+                    "</div>" +
+                    "<div>" +
+                    "<h5>商品原价：" + value.goodsDefaultAmount + "</h5>" +
+                    "<h5>商品折扣价：" + value.goodsNowAmount + "</h5>" +
+                    "<a href='/goods/goodDetail/" + value.goodsId + "' class='cta-btn'>查看详情 <i class='fa fa-arrow-circle-right'></i></a>" +
+                    "<a href='/goods/goodsBuy/" + value.goodsId + "' class='cta-btn'>点击购买 <i class='fa fa-arrow-circle-right'></i></a>" +
+                    "</div>" +
+                    "</div>"
+                );
+                shop.appendTo("#goods_list")
+            })
+        }
+    </script>
+</head>
+<body>
+<!-- HEADER -->
+<header>
+    <!-- 最上面的一排 -->
+    <div id="top-header">
+        <div class="container">
+            <ul class="header-links pull-left">
+                <li><a href="#"><i class="fa fa-phone"></i> +18875150531</a></li>
+                <li><a href="#"><i class="fa fa-envelope-o"></i> zhangzhou@yiji.com</a></li>
+                <li><a th:href="@{http://www.cque.edu.cn/}"><i class="fa fa-map-marker"></i> 重庆 重庆第二师范学院</a></li>
+            </ul>
+
+            <ul class="header-links pull-right">
+                <li><a th:href="@{/regist/toRegist}"><i class="fa fa-user-o"></i>注册 </a></li>
+            </ul>
+
+        </div>
+    </div>
+    <!-- /TOP HEADER -->
+
+    <!-- MAIN HEADER -->
+    <div id="header">
+        <!-- container -->
+        <div class="container">
+            <!-- row -->
+            <div class="row">
+                <!-- LOGO -->
+                <div class="col-md-3">
+                    <div class="header-logo">
+                        <a href="javascript:void(0)" onclick="toKill()" class="logo">
+                            <img th:src="@{/static/img/logo2.jpg}" alt="" height="70" width="150">
+                        </a>
+                    </div>
+                </div>
+                <!-- /LOGO -->
+
+                <!-- SEARCH BAR -->
+                <div class="col-md-6">
+                    <div class="header-search">
+                        <form action="#">
+                            <select class="input-select" id="search_option">
+                                <option value="0">全部商品</option>
+                                <option value="6">图书</option>
+                                <option value="7">纸巾</option>
+                                <option value="8">生活用品</option>
+                            </select>
+                            <input class="input" id="search_value" placeholder="请输入您需要搜索的商品">
+                            <button class="search-btn" id="my_search_btn">搜索</button>
+                        </form>
+                    </div>
+                </div>
+                <!-- /SEARCH BAR -->
+
+                <!-- ACCOUNT -->
+                <div class="col-md-3 clearfix">
+                    <div class="header-ctn">
+
+                        <div class="dropdown">
+                            <a href="javascript:void(0)" onclick="toKill()">
+                                <i class="glyphicon glyphicon-indent-right"></i>
+                                <span>秒杀专场</span>
+                                <div class="qty">k</div>
+                            </a>
+                        </div>
+
+                        <!-- Menu Toogle -->
+                        <div class="menu-toggle">
+                            <a href="#">
+                                <i class="fa fa-bars"></i>
+                                <span>Menu</span>
+                            </a>
+                        </div>
+                        <!-- /Menu Toogle -->
+                    </div>
+                </div>
+                <!-- /ACCOUNT -->
+            </div>
+            <!-- row -->
+        </div>
+        <!-- container -->
+    </div>
+    <!-- /MAIN HEADER -->
+</header>
+<!-- /HEADER -->
+
+<!-- BREADCRUMB -->
+<div id="breadcrumb" class="section">
+    <!-- container -->
+    <div class="container">
+        <!-- row -->
+        <div class="row">
+            <div class="col-md-12">
+                <ul class="breadcrumb-tree">
+                    <li><a th:href="@{/index}">易恩商城</a></li>
+                    <li><a th:href="@{/login/toLogin}">登录界面</a></li>
+                </ul>
+            </div>
+        </div>
+        <!-- /row -->
+    </div>
+    <!-- /container -->
+</div>
+<!-- /BREADCRUMB -->
+
+<!-- row -->
+<div class="row" id="goods_list">
+
+    <!--商品列表展示-->
+
+</div>
+<!-- /row -->
+
+<!-- SECTION -->
+<div class="section">
+    <!-- container -->
+    <div class="container">
+        <!-- row -->
+        <div class="row">
+
+            <div class="col-md-7">
+                <!-- Billing Details -->
+                <div class="billing-details">
+                    <div class="section-title">
+                        <h3 class="title">欢迎登录</h3>
+                    </div>
+                    <form>
+                        <div class="form-group">
+                            <input class="input" type="text" name="userId" id="userId" placeholder="请输入账号">
+                        </div>
+                        <div class="form-group">
+                            <input class="input" type="password" name="password" id="password" placeholder="请输入密码">
+                        </div>
+                        <div class="form-group">
+                            <div class="input-checkbox">
+                                <input type="checkbox" id="remeberMe">
+                                <label for="remeberMe">
+                                    <span></span>
+                                    记住我
+                                </label>
+                            </div>
+                        </div>
+                    </form>
+                    <button id="login_btn" class="btn btn-default btn-lg">登录</button>
+                </div>
+                <!-- /Billing Details -->
+
+                <!-- /Order Details -->
+            </div>
+            <div class="col-md-5">
+                <div class="newsletter">
+                    <p><strong>使用其他方式登录</strong></p>
+                    <ul class="newsletter-follow">
+                        <li>
+                            <a href="#"><i class="fa fa-facebook"></i></a>
+                        </li>
+                        <li>
+                            <a href="#"><i class="fa fa-twitter"></i></a>
+                        </li>
+                        <li>
+                            <a href="#"><i class="fa fa-instagram"></i></a>
+                        </li>
+                        <li>
+                            <a href="#"><i class="fa fa-pinterest"></i></a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <!-- /row -->
+        </div>
+        <!-- /container -->
+    </div>
+</div>
+<!-- /SECTION -->
+
+<!-- 脚部文件 -->
+<footer id="footer" th:fragment="footer">
+    <!-- top footer -->
+    <div class="section">
+        <!-- container -->
+        <div class="container">
+            <!-- row -->
+            <div class="row">
+                <div class="col-md-4 col-xs-6">
+                    <div class="footer">
+                        <h3 class="footer-title">关于我们</h3>
+                        <p>易恩商城秉持着方便、快捷、时尚、大气的原则，为客户提供更加优质的购物体验。</p>
+                        <ul class="footer-links">
+                            <li><a href="#"><i class="fa fa-map-marker"></i>重庆市南岸区</a></li>
+                            <li><a href="#"><i class="fa fa-phone"></i>+021-95-51-84</a></li>
+                            <li><a href="#"><i class="fa fa-envelope-o"></i>zhangzhou@yiji.com</a></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="col-md-8 col-xs-6">
+                    <div class="col-md-4 col-xs-6">
+                        <div class="footer">
+                            <h3 class="footer-title">产品</h3>
+                            <ul class="footer-links">
+                                <li><a href="#">商家入驻</a></li>
+                                <li><a href="#">产品投入</a></li>
+                                <li><a href="#">市场营销</a></li>
+                                <li><a href="#">市场拓展</a></li>
+                                <li><a href="#">欢迎光临</a></li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="col-md-4 col-xs-6">
+                        <div class="footer">
+                            <h3 class="footer-title">信息</h3>
+                            <ul class="footer-links">
+                                <li><a href="#">关于我们</a></li>
+                                <li><a href="#">加入我们</a></li>
+                                <li><a href="#">优材招聘</a></li>
+                                <li><a href="#">团队合作</a></li>
+                                <li><a href="#">人才培养</a></li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="col-md-4 col-xs-6">
+                        <div class="footer">
+                            <h3 class="footer-title">服务</h3>
+                            <ul class="footer-links">
+                                <li><a href="#">账号信息</a></li>
+                                <li><a href="#">异常描述</a></li>
+                                <li><a href="#">投诉意见</a></li>
+                                <li><a href="#">在线客服</a></li>
+                                <li><a href="#">有朋自远方来，不亦乐乎</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- /row -->
+        </div>
+        <!-- /container -->
+    </div>
+    <!-- /top footer -->
+
+</footer>
+<!-- /脚部文件 -->
+
+<script>
+    $(document).on("click", "#login_btn", function () {
+        var userId = $("#userId").val()
+        var password = $("#password").val()
+        var remeberMe = 0
+        if ($('#remeberMe').is(':checked')) {
+            remeberMe = 1
+        }
+
+        $.ajax({
+            url: '/login/login',
+            type: "POST",
+            data: {
+                userId: userId,
+                password: password,
+                remeberMe: remeberMe
+            },
+            success: function (result) {
+                console.log(result)
+                if (result.code == 100) {
+                    //if (confirm("登陆成功。是否跳转到登录界面？")) {
+                    window.location.href = "/index"
+                    //}
+                } else {
+                    alert(result.info)
+                }
+            },
+            error: function (result) {
+                console.log(result)
+                alert(result)
+            }
+        });
+    })
+</script>
+
+<script th:src="@{/static/js/slick.min.js}"></script>
+<script th:src="@{/static/js/nouislider.min.js}"></script>
+<script th:src="@{/static/js/jquery.zoom.min.js}"></script>
+<script th:src="@{/ststic/js/main.js}"></script>
+
+</body>
+</html>

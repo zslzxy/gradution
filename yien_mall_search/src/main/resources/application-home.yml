@@ -1,0 +1,21 @@
+spring:
+  data:
+    elasticsearch:
+      cluster-name: elasticsearch
+      cluster-nodes: 127.0.0.1:9300
+dubbo:
+  application:
+    name: yien_mall_search
+  registry:
+    address: 127.0.0.1:2181
+    protocol: zookeeper
+  protocol:
+    name: dubbo
+    port: 20885
+  monitor:
+    protocol: registry
+  scan:
+    base-packages: com.zsl.search
+logging:
+  level:
+    com.zsl.search.repository: debug

@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zsl.management.mapper.BankMapper">
+    
+
+    <insert id="insertOne" useGeneratedKeys="true" keyProperty="id">
+        insert into yien_user_bank (id,bank_id,bank_card_no,bank_card_type,bank_zh_name,bank_en_name,bank_card_mobile,bank_user_id,raw_add_time)
+          values
+                    (null,#{bankId},#{bankCardNo},#{bankCardType},#{bankZhName},#{bankEnName},#{bankCardMobile},#{bankUserId},#{rawAddTime})
+    </insert>
+
+    <select id="seletcBankByBankId" resultType="com.zsl.common.entity.Bank">
+        select * from yien_user_bank where bank_id = #{bankId}
+    </select>
+
+    <update id="updateByPrimaryKeySelective" >
+        update yien_user_bank
+        <set>
+            <if test="bankId != null">
+                bank_id = #{bankId},
+            </if>
+            <if test="bankCardNo != null">
+                bank_card_no = #{bankCardNo},
+            </if>
+            <if test="bankCardType != null">
+                bank_card_type = #{bankCardType},
+            </if>
+            <if test="bankZhName != null">
+                bank_zh_name = #{bankZhName},
+            </if>
+            <if test="bankEnName != null">
+                bank_en_name = #{bankEnName},
+            </if>
+            <if test="bankCardMobile != null">
+                bank_card_mobile = #{bankCardMobile},
+            </if>
+            <if test="bankUserId != null">
+                bank_user_id = #{bankUserId},
+            </if>
+            <if test="rawUpdateTime != null">
+                raw_update_time = #{rawUpdateTime}
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteBankBatch" >
+        delete from yien_user_bank
+        <foreach collection="bankIds" item="item_id" open="where bank_id in(" close=")" separator=",">
+            #{item_id}
+        </foreach>
+    </delete>
+
+    <select id="seletcBankByUserId" resultType="com.zsl.common.entity.Bank">
+        select * from yien_user_bank where bank_user_id = #{user_id}
+    </select>
+
+</mapper>

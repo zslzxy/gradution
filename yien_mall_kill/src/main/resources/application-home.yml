@@ -1,0 +1,16 @@
+spring:
+  redis:
+    database: 0
+    host: 127.0.0.1
+    port: 6379
+    jedis:
+      pool:
+        max-idle: 8
+        min-idle: 0
+        max-active: 8
+  rabbitmq:
+    virtual-host: /
+    host: 192.168.21.158
+    port: 5672
+    username: guest
+    password: guest

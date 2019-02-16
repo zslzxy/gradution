@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zsl.management.mapper.MerchantsMapper">
+
+    <insert id="insertOne">
+        insert into yien_merchants(merchants_id,merchants_user_id,merchants_store_name,merchants_store_place,merchants_author_name,
+                                  merchants_author_mobile,merchants_author_email,merchants_create_time,raw_add_time)
+              values
+                                (#{merchantsId},#{merchantsUserId},#{merchantsStoreName},#{merchantsStorePlace},#{merchantsAuthorName},
+                                  #{merchantsAuthorMobile},#{merchantsAuthorEmail},#{merchantsCreateTime},#{rawAddTime})
+    </insert>
+
+    <select id="selectOne" resultType="com.zsl.common.entity.Merchants">
+      select * from yien_merchants where merchants_id=#{merchantsId}
+    </select>
+
+    <select id="selectAll" resultType="com.zsl.common.entity.Merchants">
+        select * from yien_merchants
+    </select>
+
+    <select id="selectByUserId" resultType="com.zsl.common.entity.Merchants">
+        select * from yien_merchants where merchants_user_id=#{merchantsUserId}
+    </select>
+
+    <delete id="delectBatch">
+        delete from yien_merchants
+        <foreach collection="merchantsIds" item="merchantsId" open="where merchants_id in (" close=")" separator=",">
+            #{merchantsId}
+        </foreach>
+    </delete>
+
+    <update id="updateOne">
+        update yien_merchants
+        <set>
+            <if test="merchantsId != null">
+                merchants_id = #{merchantsId},
+            </if>
+            <if test="merchantsUserId != null">
+                merchants_user_id = #{merchantsUserId},
+            </if>
+            <if test="merchantsStoreName != null">
+                merchants_store_name = #{merchantsStoreName},
+            </if>
+            <if test="merchantsStorePlace != null">
+                merchants_store_place = #{merchantsStorePlace},
+            </if>
+            <if test="merchantsAuthorName != null">
+                merchants_author_name = #{merchantsAuthorName},
+            </if>
+            <if test="merchantsAuthorMobile != null">
+                merchants_author_mobile = #{merchantsAuthorMobile},
+            </if>
+            <if test="merchantsAuthorEmail != null">
+                merchants_author_email = #{merchantsAuthorEmail},
+            </if>
+            <if test="merchantsCreateTime != null">
+                merchants_create_time = #{merchantsCreateTime},
+            </if>
+            <if test="rawUpdateTime != null">
+                raw_update_time = #{rawUpdateTime}
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+</mapper>

@@ -1,0 +1,802 @@
+<!DOCTYPE html>
+<!--商店页面-->
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:shiro="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>商家界面</title>
+
+    <script th:src="@{/webjars/jquery/1.12.3/jquery.js}"></script>
+    <script th:src="@{/webjars/bootstrap/3.3.7/js/bootstrap.js}"></script>
+    <script th:src="@{/static/laydate/laydate.js}"></script>
+    <script th:src="@{/static/js/html5shiv.min.js}"></script>
+    <script th:src="@{/static/js/respond.min.js}"></script>
+    <link th:href="@{/webjars/bootstrap/3.3.7/css/bootstrap.css}" rel="stylesheet">
+    <link type="text/css" rel="stylesheet" th:href="@{/static/css/slick.css}"/>
+    <link type="text/css" rel="stylesheet" th:href="@{/static/css/slick-theme.css}"/>
+    <link type="text/css" rel="stylesheet" th:href="@{/static/css/nouislider.min.css}"/>
+    <link rel="stylesheet" th:href="@{/static/css/font-awesome.min.css}">
+    <link type="text/css" rel="stylesheet" th:href="@{/static/css/style.css}"/>
+    <!--添加zTree-->
+    <link rel="stylesheet" th:href="@{/static/css/zTree/zTreeStyle.css}" type="text/css">
+    <script th:src="@{/static/js/zTree/jquery.ztree.core.min.js}"></script>
+    <script th:src="@{/static/js/zTree/jquery.ztree.excheck.min.js}"></script>
+    <script th:src="@{/static/js/zTree/jquery.ztree.exedit.min.js}"></script>
+    <script th:src="@{/static/js/zTree/jquery.ztree.exhide.min.js}"></script>
+
+    <style>
+        .pre-scrollable {
+            max-height: 600px
+        }
+    </style>
+
+    <script>
+
+        function toKill() {
+            $.ajax({
+                url: "/kill/toKillAjax",
+                success: function (result) {
+                    if (result.code == 300) {
+                        alert(result.info)
+                    } else {
+                        window.location.href = ""+result.info
+                    }
+                }
+            })
+            return false
+        }
+        /**
+         * 生成商品结构树
+         */
+        var zTreeObj;
+        var zNodes;
+        //zTree的设置
+        var setting = {
+            callback: {
+                onClick: goodsZTreeOnClick,
+            },
+            view: {
+                showIcon: true
+            },
+            check: {
+                enable: true
+            },
+            data: {
+                simpleData: {
+                    enable: true,
+                    idKey: "id",
+                    pIdKey: "pId"
+                }
+            },
+            edit: {
+                isSimpleData: true, //数据是否采用简单 Array 格式，默认false
+                treeNodeKey: "id",  //在isSimpleData格式下，当前节点id属性
+                treeNodeParentKey: "pId",//在isSimpleData格式下，当前节点的父节点id属性
+                showLine: true //是否显示节点间的连线
+            },
+            async: {
+                enable: true,
+                url: "/merchants/createMerchantsTree",
+                type: "post",
+                data: {
+                    userId: $("#userId_id_val").text()
+                }
+            }
+        }
+
+        $(function () {
+            var userId = $("#userId_id_val").text()
+            $.ajax({
+                url: "/merchants/createMerchantsTree",
+                type: "POST",
+                data: {
+                    userId: userId
+                },
+                success: function (result) {
+                    console.log(result)
+                    var eval1 = eval(result)
+                    zNodes = eval1
+                    zTreeObj = $.fn.zTree.init($("#goodsTree"), setting, zNodes);
+                    //默认设置为展开全部
+                    //zTreeObj.expandAll(true);
+                    var nodes = zTreeObj.getNodes();
+                    for (var i = 0; i < nodes.length; i++) { //设置节点展开第二级节点
+                        zTreeObj.expandNode(nodes[i], true, false, true);
+                        var nodespan = nodes[i].children;
+                        for (var j = 0; j < nodespan.length; j++) { //设置节点展开第三级节点
+                            zTreeObj.expandNode(nodespan[j], true, false, true);
+                        }
+                    }
+                }
+            })
+        })
+
+        /**
+         * 商品的树的点击事件
+         */
+        function goodsZTreeOnClick(event, treeId, treeNode) {
+            $("#show_goods_span").empty()
+            //得到对应的节点树
+            var treeObj = $.fn.zTree.getZTreeObj("goodsTree");
+            //得到当前点击的节点
+            var node = treeObj.getNodeByTId(treeNode.tId);
+            //得到当前节点的子节点
+            var nodes = node.children;
+            if (nodes == null) {
+                getGoods(node.id)
+            }
+        }
+
+        /*获取对应的商家数据*/
+        $(function () {
+            var userId = $("#userId_id_val").text()
+            $.ajax({
+                url: "/merchants/getUserMerchants",
+                type: "POST",
+                data: {
+                    userId: userId
+                },
+                success: function (result) {
+                    $.each(result, function (index, item) {
+                        $("#merchants-store-select").append("<option value='" + item.merchantsId + "'>" + item.merchantsStoreName + "</option>");
+                    })
+                    getUserMerchantsGoods()
+                }
+            })
+        })
+
+
+        /**
+         * 点击选择店铺
+         */
+        $(document).on("change", ".store-select", function () {
+            getUserMerchantsGoods()
+        })
+
+
+        /**
+         * 获取对应商家的数据
+         * @returns {boolean}
+         */
+        function getUserMerchantsGoods() {
+            var merchantsId = $("#merchants-store-select option:selected").val()
+            $.ajax({
+                url: "/merchants/getUserMerchantsGoods",
+                type: "POST",
+                data: {
+                    merchantsId: merchantsId
+                },
+                success: function (result) {
+                    eachGoods(result)
+                }
+            })
+        }
+
+
+        /**
+         * 遍历商品数据
+         * @param list
+         */
+        function eachGoods(list) {
+            $.each(list, function (index, item) {
+                var shop = $(
+                    "<div class='col-md-4 col-xs-6'>" + "<div class='product'>" + "<div class='product-img'>" +
+                    "<img src='" + item.goodsImage1 + "' alt=''>" + "</div>" + "<div class='product-body'>" +
+                    "<h3 class='product-name'><a href='#'>" + item.goodsName.substring(0,10) + "</a></h3>" +
+                    "<h4 class='product-price'>￥" + item.goodsNowAmount + "<del class='product-old-price'> ￥" + item.goodsDefaultAmount + "</del>" + "</h4>" +
+                    "<psan>商品库存："+ item.goodsInventory +"</psan>" +
+
+                    "        <div class=\"product-btns\">\n" + "<span hidden='hidden'>"+ item.goodsId +"</span>" +
+                    "            <button class=\"add-to-wishlist delete-goods-btn\"><i class=\"glyphicon glyphicon-trash\"></i><span class=\"tooltipp\">删除商品</span>\n" +
+                    "        </button>\n" +
+                    "        <button class=\"add-to-compare show-goods-btn\"><i class=\"fa fa-eye\"></i><span class=\"tooltipp\">查看商品</span>\n" +
+                    "        </button>\n" +
+                    "        <button class=\"quick-view add-kill-goods\"><i class=\"fa fa-exchange\"></i><span class=\"tooltipp\">加入秒杀</span></button>\n" +
+                    "        </div>\n" +
+                    "        </div>\n" +
+                    "        </div>\n" +
+                    "        </div>"
+                )
+                $("#good-list-body").append(shop)
+            })
+        }
+
+        /**
+         * 添加秒杀商品，弹出对应的秒杀商品的模态框
+         */
+        var goodsId;
+        $(document).on("click",".add-kill-goods",function () {
+            goodsId = $(this).parent().find("span:eq(0)").text()
+            killTime()
+            //弹出模态框
+            $("#killGoods").modal({
+                backdrop: "static"
+            })
+        })
+
+        function killTime() {
+            $("#killGoodsTime").empty()
+            $.ajax({
+                url: "/kill/killTimeOnlyString",
+                type: "GET",
+                success: function (result) {
+                    $.each(result,function (index,item) {
+                        var value = item.replace(/\ +/g,"")
+                        $("#killGoodsTime").append("<option value="+value+">"+item+"</option>");
+                    })
+                }
+            })
+        }
+
+        /**
+         * 添加秒杀商品数据
+         */
+        function addKillGoods() {
+            var killTime = $("#killGoodsTime option:selected").text()
+            var killAmount = $("#killAmount").val()
+            var killNum = $("#killNum").val()
+            $.ajax({
+                url: "/kill/createKillGoods",
+                type: "POST",
+                data: {
+                    goodsId: goodsId,
+                    killAmount: killAmount,
+                    killTime: killTime,
+                    killNum: killNum
+                },
+                success: function (result) {
+                    if (result.code == 100) {
+                        alert(result.info)
+                        window.location.reload()
+                    } else {
+                        alert(result.info)
+                    }
+                }
+            })
+        }
+
+        /*删除商品*/
+        $(document).on("click",".delete-goods-btn",function () {
+            if (confirm("确认删除吗？")) {
+                var goodsId = $(this).parent().find("span:eq(0)").text()
+                $.ajax({
+                    url: "/goods/deleteGoodsByGoodsId",
+                    type: "POST",
+                    data: {
+                        goodsId: goodsId
+                    },
+                    success: function (result) {
+                        alert(result.info)
+                        window.location.reload()
+                    }
+                })
+            }
+            return false
+        })
+
+        /**
+         * 查看商品详情
+         */
+        $(document).on("click",".show-goods-btn",function () {
+            var goodsId = $(this).parent().find("span:eq(0)").text()
+            getGoods(goodsId)
+        })
+
+        /**
+         * 获取商品数据
+         */
+        function getGoods(goodsId) {
+            $.ajax({
+                url: "/goods/goodsWindow",
+                type: "POST",
+                data: {
+                    goodsId: goodsId
+                },
+                success: function (result) {
+                    appendToGoodsWindow(result)
+                    //弹出模态框
+                    $("#showGoods").modal({
+                        backdrop: "static"
+                    })
+                }
+            })
+        }
+
+        function updateGoods() {
+            $.ajax({
+                url: "/goods/updateGoods",
+                type: "POST",
+                data: $("#goodsShowForm").serialize(),
+                success: function (result) {
+                    $("#show_goods_span").empty()
+                    $("#show_goods_span").append(result.info)
+                    if (result.code == 100) {
+                        setTimeout("closeAdminWindow()", 3000)
+                    }
+                    window.location.reload()
+                }
+            })
+        }
+
+        function toGoodsDetails() {
+            var goodsId = $("#goodsId").val()
+            window.location.href = "/goods/goodDetail/"+goodsId
+        }
+
+        /**
+         * 关闭商品弹出框
+         */
+        function closeAdminWindow() {
+            $("#show_goods_span").empty()
+            $("#showGoods").modal('hide');
+        }
+
+        /**
+         * 将商品添加到商品的弹出框中
+         */
+        function appendToGoodsWindow(result) {
+            $("#goods_Id").val(result.id)
+            $("#goodsId").val(result.goodsId)
+            $("#goodsName").val(result.goodsName)
+            $("#goodsNowAmount").val(result.goodsNowAmount)
+            $("#goodsDefaultAmount").val(result.goodsDefaultAmount)
+            $("#goodsMerchantsId").val(result.goodsMerchantsId)
+            $("#goodsMerchantsName").val(result.goodsMerchantsName)
+            $("#goodsState").val(result.goodsState)
+            $("#goodsSellTime").val(result.goodsSellTime)
+            $("#goodsDiscontinuedTime").val(result.goodsDiscontinuedTime)
+            $("#goodsInventory").val(result.goodsInventory)
+        }
+
+
+        /**
+         * 点击搜索按钮以后，进行商品的search查询操作
+         */
+        $(document).on("click","#my_search_btn",function () {
+            var text = $("#search_value").val()
+            var type = $("#search_option option:selected").val()
+            if (type == 0) {
+                findByAllGoods(text)
+            } else {
+                findByGoodsNameAndGoodsTypeId(text, type)
+            }
+        })
+
+        /**
+         * 搜索框，选择搜索全部的请求发送
+         * @param goodsNameValue
+         */
+        function findByAllGoods(goodsNameValue, goodsMerchantsId) {
+            $.ajax({
+                url: "/merchants/findByGoodsNameAndGoodsMerchantsId",
+                type: "POST",
+                data: {
+                    goodsNameValue: goodsNameValue,
+                    goodsMerchantsId: goodsMerchantsId
+                },
+                success: function (result) {
+                    $("#good-list-body").empty();
+                    eachGoods(result)
+                }
+            })
+            return false
+        }
+
+        /**
+         * 搜索框，选择搜索对应类型的商品的时候进行发送请求
+         * @param goodsNameValue
+         * @param goodsTypeId
+         */
+        function findByGoodsNameAndGoodsTypeId(goodsNameValue, goodsTypeId, goodsMerchantsId) {
+            $.ajax({
+                url: "/merchants/findByGoodsNameAndGoodsTypeIdAndGoodsMerchantsId",
+                type: "POST",
+                data: {
+                    goodsNameValue: goodsNameValue,
+                    goodsTypeId: goodsTypeId,
+                    goodsMerchantsId: goodsMerchantsId
+                },
+                success: function (result) {
+                    console.log(result)
+                    $("#good-list-body").empty();
+                    eachGoods(result)
+                    return false
+                }
+            })
+            return false
+        }
+
+    </script>
+</head>
+<body>
+<span id="userId_id_val" hidden="hidden"><shiro:principal property="userId"/></span>
+<!-- HEADER -->
+<header>
+    <!-- 最上面的一排 -->
+    <div id="top-header">
+        <div class="container">
+            <ul class="header-links pull-left">
+                <li><a href="#"><i class="fa fa-phone"></i> +18875150531</a></li>
+                <li><a href="#"><i class="fa fa-envelope-o"></i> zhangzhou@yiji.com</a></li>
+                <li><a th:href="@{http://www.cque.edu.cn/}"><i class="fa fa-map-marker"></i> 重庆 重庆第二师范学院</a></li>
+            </ul>
+            <ul class="header-links pull-right" shiro:user="">
+                <li><a href="#"><i class="fa fa-dollar"></i>
+                    <shiro:principal property="userName"/>
+                    <a th:href="@{/login/logout}">，注销 </a></a></li>
+                <li><a th:href="@{/user/myIndex}"><i class="glyphicon glyphicon-user"></i> 我的账户</a></li>
+                <li shiro:hasAnyRoles="admin"><a th:href="@{/admin/toAdmin.html}"> <i class="fa fa-user-o"></i>管理员界面
+                </a></li>
+            </ul>
+            <ul class="header-links pull-right" shiro:notAuthenticated="">
+                <li><a th:href="@{/login/toLogin}"><i class="fa fa-user-o"></i>登录 </a></li>
+                <li><a th:href="@{/regist/toRegist}"><i class="fa fa-user-o"></i>注册 </a></li>
+            </ul>
+        </div>
+    </div>
+    <!-- /TOP HEADER -->
+
+    <!-- MAIN HEADER -->
+    <div id="header">
+        <!-- container -->
+        <div class="container">
+            <!-- row -->
+            <div class="row">
+                <!-- LOGO -->
+                <div class="col-md-3">
+                    <div class="header-logo">
+                        <a th:href="@{/index}" class="logo">
+                            <img th:src="@{/static/img/logo2.jpg}" alt="" height="70" width="150">
+                        </a>
+                    </div>
+                </div>
+                <!-- /LOGO -->
+
+                <!-- SEARCH BAR -->
+                <div class="col-md-6">
+                    <div class="header-search">
+                        <form action="#">
+                            <select class="input-select" id="search_option">
+                                <option value="0">全部商品</option>
+                                <option value="6">图书</option>
+                                <option value="7">纸巾</option>
+                                <option value="8">生活用品</option>
+                            </select>
+                            <input class="input" id="search_value" placeholder="请输入您需要搜索的商品">
+                            <button class="search-btn" id="my_search_btn">搜索</button>
+                        </form>
+                    </div>
+                </div>
+                <!-- /SEARCH BAR -->
+
+                <!-- ACCOUNT -->
+                <div class="col-md-3 clearfix">
+                    <div class="header-ctn">
+
+                        <div class="dropdown">
+                            <a href="javascript:void(0)" onclick="toKill()">
+                                <i class="glyphicon glyphicon-indent-right"></i>
+                                <span>秒杀专场</span>
+                                <div class="qty">k</div>
+                            </a>
+                        </div>
+
+                        <div class="dropdown">
+                            <a href="javascript:void(0)" onclick="toShopCar()" id="to_shopCar">
+                                <i class="fa fa-shopping-cart"></i>
+                                <span>购物车</span>
+                                <div class="qty">3</div>
+                            </a>
+                        </div>
+                        <!-- /Cart -->
+                    </div>
+                </div>
+                <!-- /ACCOUNT -->
+            </div>
+            <!-- row -->
+        </div>
+        <!-- container -->
+    </div>
+    <!-- /MAIN HEADER -->
+</header>
+<!-- /HEADER -->
+
+<!-- BREADCRUMB -->
+<div id="breadcrumb" class="section">
+    <!-- container -->
+    <div class="container">
+        <!-- row -->
+        <div class="row">
+            <div class="col-md-12">
+                <ul class="breadcrumb-tree">
+                    <li><a href="#">易恩商城</a></li>
+                    <li><a href="#">商家管理</a></li>
+                    <li><a href="#">店铺界面</a></li>
+                </ul>
+            </div>
+        </div>
+        <!-- /row -->
+    </div>
+    <!-- /container -->
+</div>
+<!-- /BREADCRUMB -->
+
+<!-- SECTION -->
+<div class="section">
+    <!-- container -->
+    <div class="container">
+        <div class="row">
+
+            <!--商品树-->
+            <div id="aside" class="col-md-3">
+                <div class="aside">
+                    <h3 class="aside-title">商品列表</h3>
+                    <div class="col-md-12 pre-scrollable" style="overflow:scroll">
+                        <div class="row" id="div_goods_tree">
+                            <ul id="goodsTree" class="ztree"></ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!--商品展示-->
+            <div id="store" class="col-md-9">
+                <!-- 店铺选择 -->
+                <div class="store-filter clearfix">
+                    <div class="store-sort">
+                        <label>
+                            选择小店：
+                            <select class="input-select store-select" id="merchants-store-select">
+                            </select>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- 展示商品 -->
+                <div class="row" id="good-list-body">
+
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 商品详情展示弹出框 -->
+<div class="modal fade" id="showGoods" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span>
+                </button>
+                <h4 class="modal-title">商品详情展示</h4>
+            </div>
+            <div class="modal-body">
+                <form class="form-horizontal" id="goodsShowForm">
+                    <div class="form-group" hidden="hidden">
+                        <label class="col-sm-3 control-label">商品id</label>
+                        <div class="col-sm-9">
+                            <input type="text" name="id" class="form-control" id="goods_Id" placeholder="商品的id">
+                            <span class="help-block"></span>
+                        </div>
+                    </div>
+                    <div class="form-group" hidden="hidden">
+                        <label class="col-sm-3 control-label">商品唯一索引id</label>
+                        <div class="col-sm-9">
+                            <input type="text" name="goodsId" class="form-control" id="goodsId" placeholder="商品的唯一索引id">
+                            <span class="help-block"></span>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-3 control-label">商品名称</label>
+                        <div class="col-sm-9">
+                            <input type="text" name="goodsName" class="form-control" id="goodsName" placeholder="商品的名称">
+                            <span class="help-block"></span>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-3 control-label">商品原价</label>
+                        <div class="col-sm-9">
+                            <input type="text" name="goodsDefaultAmount" class="form-control" id="goodsDefaultAmount"
+                                   placeholder="商品的原价">
+                            <span class="help-block"></span>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-3 control-label">商品现价</label>
+                        <div class="col-sm-9">
+                            <input type="text" name="goodsNowAmount" class="form-control" id="goodsNowAmount"
+                                   placeholder="商品的现价">
+                            <span class="help-block"></span>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-3 control-label">商品商家id</label>
+                        <div class="col-sm-9">
+                            <input type="text" name="goodsMerchantsId" class="form-control" id="goodsMerchantsId"
+                                   placeholder="商品的商家id">
+                            <span class="help-block"></span>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-3 control-label">商品商家名称</label>
+                        <div class="col-sm-9">
+                            <input type="text" name="goodsMerchantsName" class="form-control" id="goodsMerchantsName"
+                                   placeholder="商品的商家名称">
+                            <span class="help-block"></span>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-3 control-label">商品销售状态</label>
+                        <div class="col-sm-9">
+                            <input type="text" name="goodsState" class="form-control" id="goodsState"
+                                   placeholder="商品的销售状态">
+                            <span class="help-block"></span>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-3 control-label">商品开售时间</label>
+                        <div class="col-sm-9">
+                            <input type="text" name="goodsSellTime" class="form-control" id="goodsSellTime"
+                                   placeholder="商品的开售时间">
+                            <span class="help-block"></span>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-3 control-label">商品停售时间</label>
+                        <div class="col-sm-9">
+                            <input type="text" name="goodsDiscontinuedTime" class="form-control"
+                                   id="goodsDiscontinuedTime" placeholder="商品的停售时间">
+                            <span class="help-block"></span>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-3 control-label">商品库存</label>
+                        <div class="col-sm-9">
+                            <input type="text" name="goodsInventory" class="form-control" id="goodsInventory"
+                                   placeholder="商品库存">
+                            <span class="help-block"></span>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <div class="modal-footer">
+                <span id="show_goods_span"></span>
+                <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                <a class="btn btn-primary" id="toGoodsDetails" href="javascript:void(0)" onclick="toGoodsDetails()">查看商品详情</a>
+                <a class="btn btn-primary" id="updateGoods" href="javascript:void(0)" onclick="updateGoods()">确认修改</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 秒杀弹出框 -->
+<div class="modal fade" id="killGoods" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span>
+                </button>
+                <h4 class="modal-title">秒杀商品</h4>
+            </div>
+            <div class="modal-body">
+                <form class="form-horizontal" id="killShowForm">
+                    <div class="form-group">
+                        <label class="col-sm-3 control-label">商品秒杀价</label>
+                        <div class="col-sm-9">
+                            <input type="text" name="goodsNowAmount" class="form-control" id="killAmount"
+                                   placeholder="商品的现价">
+                            <span class="help-block"></span>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-3 control-label">商品秒杀数量</label>
+                        <div class="col-sm-9">
+                            <input type="text" name="killNum" class="form-control" id="killNum"
+                                   placeholder="商品的秒杀数量">
+                            <span class="help-block"></span>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="col-sm-3 control-label">商品开售时间</label>
+                        <div class="col-sm-9">
+                            <select name="killGoodsTime" class="form-control" id="killGoodsTime">
+
+                            </select>
+                        </div>
+                    </div>
+
+                </form>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                <a class="btn btn-primary" id="updateKillGoods" href="javascript:void(0)" onclick="addKillGoods()">确认加入秒杀队列</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 脚部文件 -->
+<footer id="footer" th:fragment="footer">
+    <!-- top footer -->
+    <div class="section">
+        <!-- container -->
+        <div class="container">
+            <!-- row -->
+            <div class="row">
+                <div class="col-md-4 col-xs-6">
+                    <div class="footer">
+                        <h3 class="footer-title">关于我们</h3>
+                        <p>易恩商城秉持着方便、快捷、时尚、大气的原则，为客户提供更加优质的购物体验。</p>
+                        <ul class="footer-links">
+                            <li><a href="#"><i class="fa fa-map-marker"></i>重庆市南岸区</a></li>
+                            <li><a href="#"><i class="fa fa-phone"></i>+021-95-51-84</a></li>
+                            <li><a href="#"><i class="fa fa-envelope-o"></i>zhangzhou@yiji.com</a></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="col-md-8 col-xs-6">
+                    <div class="col-md-4 col-xs-6">
+                        <div class="footer">
+                            <h3 class="footer-title">产品</h3>
+                            <ul class="footer-links">
+                                <li><a href="#">商家入驻</a></li>
+                                <li><a href="#">产品投入</a></li>
+                                <li><a href="#">市场营销</a></li>
+                                <li><a href="#">市场拓展</a></li>
+                                <li><a href="#">欢迎光临</a></li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="col-md-4 col-xs-6">
+                        <div class="footer">
+                            <h3 class="footer-title">信息</h3>
+                            <ul class="footer-links">
+                                <li><a href="#">关于我们</a></li>
+                                <li><a href="#">加入我们</a></li>
+                                <li><a href="#">优材招聘</a></li>
+                                <li><a href="#">团队合作</a></li>
+                                <li><a href="#">人才培养</a></li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="col-md-4 col-xs-6">
+                        <div class="footer">
+                            <h3 class="footer-title">服务</h3>
+                            <ul class="footer-links">
+                                <li><a href="#">账号信息</a></li>
+                                <li><a href="#">异常描述</a></li>
+                                <li><a href="#">投诉意见</a></li>
+                                <li><a href="#">在线客服</a></li>
+                                <li><a href="#">有朋自远方来，不亦乐乎</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- /row -->
+        </div>
+        <!-- /container -->
+    </div>
+    <!-- /top footer -->
+
+</footer>
+<!-- /脚部文件 -->
+
+<!-- jQuery Plugins -->
+<!-- jQuery Plugins -->
+<script th:src="@{/static/js/slick.min.js}"></script>
+<script th:src="@{/static/js/nouislider.min.js}"></script>
+<script th:src="@{/static/js/jquery.zoom.min.js}"></script>
+<script th:src="@{/static/js/main.js}"></script>
+</body>
+</html>

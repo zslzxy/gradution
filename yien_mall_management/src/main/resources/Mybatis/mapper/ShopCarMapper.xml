@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zsl.management.mapper.ShopCarMapper">
+
+
+    <insert id="insertOne" useGeneratedKeys="true" keyProperty="id">
+        insert into yien_user_shopcar (id,shop_car_id,shop_car_user_id,shop_car_goods_id,shop_car_goods_name,shop_car_goods_price,shop_car_goods_image,raw_add_time)
+          values
+                    (null,#{ShopCarId},#{ShopCarUserId},#{ShopCarGoodsid},#{ShopCarGoodsName},#{ShopCarGoodsPrice},#{shopCarGoodsimage},#{rawAddTime})
+    </insert>
+
+    <select id="selectShopCarByUserId" resultType="com.zsl.common.entity.ShopCar">
+        select * from yien_user_shopcar where shop_car_user_id = #{userId}
+    </select>
+
+
+</mapper>

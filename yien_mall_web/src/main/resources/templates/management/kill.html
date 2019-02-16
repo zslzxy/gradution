@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:shiro="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+
+    <title>易恩商城主页</title>
+
+    <script th:src="@{/webjars/jquery/1.12.3/jquery.js}"></script>
+    <script th:src="@{/webjars/bootstrap/3.3.7/js/bootstrap.js}"></script>
+    <script th:src="@{/js/html5shiv.min.js}"></script>
+    <script th:src="@{/js/respond.min.js}"></script>
+    <link th:href="@{/webjars/bootstrap/3.3.7/css/bootstrap.css}" rel="stylesheet">
+    <link type="text/css" rel="stylesheet" th:href="@{/static/css/slick.css}"/>
+    <link type="text/css" rel="stylesheet" th:href="@{/static/css/slick-theme.css}"/>
+    <link type="text/css" rel="stylesheet" th:href="@{/static/css/nouislider.min.css}"/>
+    <link rel="stylesheet" th:href="@{/static/css/font-awesome.min.css}">
+    <link type="text/css" rel="stylesheet" th:href="@{/static/css/style.css}"/>
+
+    <script>
+        $(function () {
+            $.ajax({
+                url: "/kill/selectKillGoods",
+                type:"POST",
+                success: function (result) {
+                    console.log(result)
+                    if (result.code == 100) {
+                        eachKillGoods(result.extend.list)
+                        console.log(result)
+                        return
+                    } else {
+                        alert(result.info)
+                    }
+                }
+            })
+        })
+
+        /**
+         * 遍历商品
+         * @param list
+         */
+        function eachKillGoods(list) {
+            $.each(list, function (index, item) {
+                var shop = $(
+                    "<div class='col-md-3 col-xs-4'>" + "<div class='product'>" + "<div class='product-img'>" +
+                    "<img src='" + item.image + "' alt=''>" + "</div>" + "<div class='product-body'>" +
+                    "<h3 class='product-name'><a href='#'>" + item.killGoodsName.substring(0,13) + "</a></h3>" +
+                    "<h4 class='product-price'>￥" + item.killGoodsAmount + "<del class='product-old-price'> ￥" + item.killDefaultAmount + "</del>" + "</h4>" +
+                    "<p style='color: red;'>劲爆价，速速来抢</p>" +
+                    "        <div class=\"product-btns\">\n" + "<span hidden='hidden'>"+ item.killGoodsId +"</span>"  + "<span hidden='hidden'>"+ item.killGoodsAmount +"</span>" +
+                    "        <button class=\"add-to-compare show-goods-btn\"><i class=\"fa fa-eye\"></i><span class=\"tooltipp\">查看商品</span>\n" +
+                    "        </button>\n" +
+                    "        <button class=\"add-to-compare buy-goods-btn\"><i class=\"glyphicon glyphicon-download-alt\"></i><span class=\"tooltipp\" id='kill_buy'>购买商品</span>\n" +
+                    "        </button>\n" +
+                    "        </div>\n" +
+                    "        </div>\n" +
+                    "        </div>\n" +
+                    "        </div>"
+                )
+                $("#goods-list-body").append(shop)
+            })
+        }
+
+        /**
+         * 跳转到商品详情页面
+         */
+        $(document).on("click",".show-goods-btn",function () {
+            var killGoodsId = $(this).parent().find("span:eq(0)").text()
+            var killGoodsAmount = $(this).parent().find("span:eq(1)").text()
+            window.location.href = "/kill/killGoodDetail/"+killGoodsId+"/"+killGoodsAmount
+        })
+
+        /**
+         * 跳转到商品购买页面
+         */
+        $(document).on("click",".buy-goods-btn",function () {
+            var killGoodsAmount = $(this).parent().find("span:eq(1)").text()
+            var killGoodsId = $(this).parent().find("span:eq(0)").text()
+
+            var pass;
+            //验证对应的商品是否还有库存
+            $.ajax({
+                url: "/kill/findKillGoodsNum",
+                type: "POST",
+                async: false,
+                data: {goodsId: killGoodsId},
+                success: function (result) {
+                    if (result.code == 100) {
+                        pass = 100
+                    } else {
+                        alert(result.info)
+                        pass = 200
+                    }
+                }
+            })
+
+            if (pass == 100) {
+                window.location.href = "/kill/killGoodsBuy/"+killGoodsId+"/"+killGoodsAmount
+            } else {
+                return false
+            }
+        })
+
+        /**
+         * 验证是否还有秒杀商品的库存
+         * @returns {*}
+         */
+        function findKillGoodsNum(killGoodsId,killGoodsAmount) {
+            var pass;
+            //验证对应的商品是否还有库存
+            $.ajax({
+                url: "/kill/findKillGoodsNum",
+                type: "POST",
+                async:false,
+                data: {goodsId: killGoodsId},
+                success: function (result) {
+                    console.log(result)
+                    alert(result.info)
+                    return true
+                    if (result.code == 100) {
+                       pass = result.code
+                    } else {
+                        alert(result.info)
+                        pass = false
+                    }
+                }
+            })
+
+            if (pass == 100) {
+                window.location.href = "/kill/killGoodsBuy/"+killGoodsId+"/"+killGoodsAmount
+            } else {
+                return false
+            }
+        }
+    </script>
+
+</head>
+<body>
+<!-- HEADER -->
+<header>
+    <!-- 最上面的一排 -->
+    <div id="top-header">
+        <div class="container">
+            <ul class="header-links pull-left">
+                <li><a href="#"><i class="fa fa-phone"></i> +18875150531</a></li>
+                <li><a href="#"><i class="fa fa-envelope-o"></i> zhangzhou@yiji.com</a></li>
+                <li><a th:href="@{http://www.cque.edu.cn/}"><i class="fa fa-map-marker"></i> 重庆 重庆第二师范学院</a></li>
+            </ul>
+            <ul class="header-links pull-right" shiro:user="">
+                <li><a href="#"><i class="fa fa-dollar"></i>
+                    <shiro:principal property="userName"/>
+                    <a th:href="@{/login/logout}">，注销 </a></a></li>
+                <li><a th:href="@{/user/myIndex}"><i class="glyphicon glyphicon-user"></i> 我的账户</a></li>
+                <li shiro:hasAnyRoles="admin"><a  th:href="@{/admin/toAdmin.html}"> <i class="fa fa-user-o"></i>管理员界面 </a></li>
+                <li shiro:hasAnyRoles="merchant"><a th:href="@{/merchants/toMerchants}"> <i class="fa fa-user-o"></i>商家界面 </a></li>
+            </ul>
+            <ul class="header-links pull-right" shiro:notAuthenticated="">
+                <li><a th:href="@{/login/toLogin}"><i class="fa fa-user-o"></i>登录 </a></li>
+                <li><a th:href="@{/regist/toRegist}"><i class="fa fa-user-o"></i>注册 </a></li>
+            </ul>
+        </div>
+    </div>
+    <!-- /TOP HEADER -->
+
+    <div id="header">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-3">
+                    <div class="header-logo">
+                        <a href="#" class="logo">
+                            <img th:src="@{/static/img/logo2.jpg}" alt="" height="70" width="150">
+                        </a>
+                    </div>
+                </div>
+                <div class="col-md-1"></div>
+                <div class="col-md-4"><h1 style="margin: auto;color: #ffffff;margin-top: 20px">秒 杀 专 场</h1></div>
+                <div class="col-md-4"></div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<div id="breadcrumb" class="section">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12">
+                <ul class="breadcrumb-tree">
+                    <li><a href="#">易恩商城</a></li>
+                    <li><a href="#">商品秒杀</a></li>
+                    <li><a href="#">秒杀页面</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 商品模块 -->
+<div class="section">
+    <div class="container">
+        <div class="row" id="goods-list-body">
+
+        </div>
+    </div>
+</div>
+
+<!-- 脚部文件 -->
+<footer id="footer" th:fragment="footer">
+    <!-- top footer -->
+    <div class="section">
+        <!-- container -->
+        <div class="container">
+            <!-- row -->
+            <div class="row">
+                <div class="col-md-4 col-xs-6">
+                    <div class="footer">
+                        <h3 class="footer-title">关于我们</h3>
+                        <p>易恩商城秉持着方便、快捷、时尚、大气的原则，为客户提供更加优质的购物体验。</p>
+                        <ul class="footer-links">
+                            <li><a href="#"><i class="fa fa-map-marker"></i>重庆市南岸区</a></li>
+                            <li><a href="#"><i class="fa fa-phone"></i>+021-95-51-84</a></li>
+                            <li><a href="#"><i class="fa fa-envelope-o"></i>zhangzhou@yiji.com</a></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="col-md-8 col-xs-6">
+                    <div class="col-md-4 col-xs-6">
+                        <div class="footer">
+                            <h3 class="footer-title">产品</h3>
+                            <ul class="footer-links">
+                                <li><a href="#">商家入驻</a></li>
+                                <li><a href="#">产品投入</a></li>
+                                <li><a href="#">市场营销</a></li>
+                                <li><a href="#">市场拓展</a></li>
+                                <li><a href="#">欢迎光临</a></li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="col-md-4 col-xs-6">
+                        <div class="footer">
+                            <h3 class="footer-title">信息</h3>
+                            <ul class="footer-links">
+                                <li><a href="#">关于我们</a></li>
+                                <li><a href="#">加入我们</a></li>
+                                <li><a href="#">优材招聘</a></li>
+                                <li><a href="#">团队合作</a></li>
+                                <li><a href="#">人才培养</a></li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="col-md-4 col-xs-6">
+                        <div class="footer">
+                            <h3 class="footer-title">服务</h3>
+                            <ul class="footer-links">
+                                <li><a href="#">账号信息</a></li>
+                                <li><a href="#">异常描述</a></li>
+                                <li><a href="#">投诉意见</a></li>
+                                <li><a href="#">在线客服</a></li>
+                                <li><a href="#">有朋自远方来，不亦乐乎</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- /row -->
+        </div>
+        <!-- /container -->
+    </div>
+    <!-- /top footer -->
+
+</footer>
+<!-- /脚部文件 -->
+
+<!-- jQuery Plugins -->
+<script th:src="@{/static/js/slick.min.js}"></script>
+<script th:src="@{/static/js/nouislider.min.js}"></script>
+<script th:src="@{/static/js/jquery.zoom.min.js}"></script>
+<script th:src="@{/static/js/main.js}"></script>
+
+</body>
+</html>

@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<!--更新个人信息的页面-->
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:shiro="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+
+    <title>个人信息修改</title>
+
+    <script th:src="@{/webjars/jquery/1.12.3/jquery.js}"></script>
+    <script th:src="@{/webjars/bootstrap/3.3.7/js/bootstrap.js}"></script>
+    <script th:src="@{/static/js/html5shiv.min.js}"></script>
+    <script th:src="@{/static/js/respond.min.js}"></script>
+    <script th:src="@{/static/js/fileinput.js}"></script>
+    <script th:src="@{/static/js/zh.js}"></script>
+    <script th:src="@{/static/laydate/laydate.js}"></script>
+    <link th:href="@{/webjars/bootstrap/3.3.7/css/bootstrap.css}" rel="stylesheet">
+    <link type="text/css" rel="stylesheet" th:href="@{/static/css/slick.css}"/>
+    <link type="text/css" rel="stylesheet" th:href="@{/static/css/fileinput.css}"/>
+    <link type="text/css" rel="stylesheet" th:href="@{/static/css/slick-theme.css}"/>
+    <link type="text/css" rel="stylesheet" th:href="@{/static/css/nouislider.min.css}"/>
+    <link rel="stylesheet" th:href="@{/static/css/font-awesome.min.css}">
+    <link type="text/css" rel="stylesheet" th:href="@{/static/css/style.css}"/>
+</head>
+<body>
+<span id="userId_id_val" hidden="hidden"><shiro:principal property="userId"/></span>
+<!-- HEADER -->
+<header>
+    <!-- 最上面的一排 -->
+    <div id="top-header">
+        <div class="container">
+            <ul class="header-links pull-left">
+                <li><a href="#"><i class="fa fa-phone"></i> +18875150531</a></li>
+                <li><a href="#"><i class="fa fa-envelope-o"></i> zhangzhou@yiji.com</a></li>
+                <li><a th:href="@{http://www.cque.edu.cn/}"><i class="fa fa-map-marker"></i> 重庆 重庆第二师范学院</a></li>
+            </ul>
+            <ul class="header-links pull-right" shiro:user="">
+                <li><a href="#"><i class="fa fa-dollar"></i>
+                    <shiro:principal property="userName"/>
+                    <a th:href="@{/login/logout}">，注销 </a></a></li>
+                <li><a th:href="@{/user/myIndex}"><i class="glyphicon glyphicon-user"></i> 我的账户</a></li>
+                <li shiro:hasAnyRoles="admin"><a  th:href="@{/admin/toAdmin.html}"> <i class="fa fa-user-o"></i>管理员界面 </a></li>
+                <li shiro:hasAnyRoles="merchant"><a th:href="@{/merchants/toMerchants}"> <i class="fa fa-user-o"></i>商家界面 </a></li>
+            </ul>
+            <ul class="header-links pull-right" shiro:notAuthenticated="">
+                <li><a th:href="@{/login/toLogin}"><i class="fa fa-user-o"></i>登录 </a></li>
+                <li><a th:href="@{/regist/toRegist}"><i class="fa fa-user-o"></i>注册 </a></li>
+            </ul>
+        </div>
+    </div>
+    <!-- /TOP HEADER -->
+
+    <!-- MAIN HEADER -->
+    <div id="header">
+        <!-- container -->
+        <div class="container">
+            <!-- row -->
+            <div class="row">
+                <!-- LOGO -->
+                <div class="col-md-3">
+                    <div class="header-logo">
+                        <a th:href="@{/index}" class="logo">
+                            <img th:src="@{/static/img/logo2.jpg}" alt="" height="70" width="150">
+                        </a>
+                    </div>
+                </div>
+                <!-- /LOGO -->
+
+                <!-- SEARCH BAR -->
+                <div class="col-md-6">
+                    <div class="header-search">
+                        <form>
+                            <select class="input-select">
+                                <option value="0">全部商品</option>
+                                <option value="6">图书</option>
+                                <option value="7">纸巾</option>
+                                <option value="8">生活用品</option>
+                            </select>
+                            <input class="input" placeholder="请输入您需要搜索的商品">
+                            <button class="search-btn">搜索</button>
+                        </form>
+                    </div>
+                </div>
+                <!-- /SEARCH BAR -->
+
+                <!-- ACCOUNT -->
+                <div class="col-md-3 clearfix">
+                    <div class="header-ctn">
+
+                        <div class="dropdown">
+                            <a href="javascript:void(0)" onclick="toKill()">
+                                <i class="glyphicon glyphicon-indent-right"></i>
+                                <span>秒杀专场</span>
+                                <div class="qty">k</div>
+                            </a>
+                        </div>
+
+                        <div class="dropdown">
+                            <a href="javascript:void(0)" onclick="toShopCar()" class="dropdown-toggle">
+                                <i class="fa fa-shopping-cart"></i>
+                                <span>购物车</span>
+                                <div class="qty">3</div>
+                            </a>
+                        </div>
+                        <!-- /Cart -->
+                    </div>
+                </div>
+                <!-- /ACCOUNT -->
+            </div>
+            <!-- row -->
+        </div>
+        <!-- container -->
+    </div>
+    <!-- /MAIN HEADER -->
+</header>
+<!-- /HEADER -->
+
+<!-- NAVIGATION -->
+<nav id="navigation">
+    <!-- container -->
+    <div class="container">
+        <!-- responsive-nav -->
+        <div id="responsive-nav">
+            <!-- NAV -->
+            <ul class="main-nav nav navbar-nav">
+                <li><a href="#"><strong>修改个人信息</strong></a></li>
+            </ul>
+            <!-- /NAV -->
+        </div>
+        <!-- /responsive-nav -->
+    </div>
+    <!-- /container -->
+</nav>
+<!-- /NAVIGATION -->
+
+<!-- BREADCRUMB -->
+<div id="breadcrumb" class="section">
+    <!-- container -->
+    <div class="container">
+        <!-- row -->
+        <div class="row">
+            <div class="col-md-12">
+                <h3 class="breadcrumb-header">个人主页修改界面</h3>
+
+            </div>
+        </div>
+        <!-- /row -->
+    </div>
+    <!-- /container -->
+</div>
+<!-- /BREADCRUMB -->
+
+<!-- SECTION -->
+<div class="section">
+    <!-- container -->
+    <div class="container">
+        <!-- row -->
+        <div class="row">
+
+            <div class="col-md-7">
+                <!-- Billing Details -->
+                <div class="billing-details">
+                    <form id="update_form">
+                        <div class="form-group">
+                            <input class="input" type="text" name="id" id="id" hidden="hidden" th:value="${user.id}">
+                        </div>
+                        <div class="form-group">
+                            <input class="input" type="text" name="userId" id="userId" placeholder="请输入账号"
+                                   th:value="${user.userId}">
+                        </div>
+                        <div class="form-group">
+                            <input class="input" type="password" name="userPassword" id="user_password"
+                                   placeholder="请输入密码" th:value="${user.userPassword}">
+                        </div>
+                        <div class="form-group">
+                            <input class="input" type="text" name="userAliasName" id="user_alias_name"
+                                   placeholder="请输入易恩商城用户名" th:value="${user.userAliasName}">
+                        </div>
+                        <div class="form-group">
+                            <input class="input" type="text" name="userName" id="user_name" placeholder="请输入真实姓名"
+                                   th:value="${user.userName}">
+                        </div>
+                        <div class="form-group">
+                            <input class="input" type="text" name="userCardNo" id="user_card_no" placeholder="请输入身份证号"
+                                   th:value="${user.userCardNo}">
+                        </div>
+                        <div class="form-group">
+                            <input class="input" type="text" name="userEmail" id="user_email" placeholder="请输入邮箱"
+                                   th:value="${user.userEmail}">
+                        </div>
+                        <div class="form-group">
+                            <label class="radio-inline" th:if="${user.userSex == 'boy'}">
+                                <input type="radio" name="userSex" id="user_sex0" value="boy" checked="checked"> boy
+                                <span style="margin-left: 30px"></span>
+                                <input type="radio" name="userSex" id="user_sex1" value="girl"> girl
+                            </label>
+                            <label class="radio-inline" th:if="${user.userSex == 'girl'}">
+                                <input type="radio" name="userSex" id="user_sex2" value="boy"> boy <span
+                                    style="margin-left: 30px"></span>
+                                <input type="radio" name="userSex" id="user_sex3" value="girl" checked="checked"> girl
+                            </label>
+                        </div>
+                        <div class="form-group">
+                            <input class="input" type="text" name="userMobileNo" id="user_mobile_no"
+                                   placeholder="请输入电话号码" th:value="${user.userMobileNo}">
+                        </div>
+                        <div class="form-group">
+                            <input class="input" type="text" name="userBirth" id="user_birth"
+                                   placeholder="请输入生日，例如：2018-12-13"
+                                   th:value="${#dates.format(user.userBirth, 'yyyy-MM-dd HH:mm:ss')}">
+                        </div>
+                        <div class="form-group">
+                            <input class="input" type="text" name="userIntegral" id="user_integral" hidden="hidden"
+                                   th:value="${user.userIntegral}">
+                        </div>
+                        <div class="form-group">
+                            <input class="input" type="text" name="userAmount" id="user_amount" hidden="hidden"
+                                   th:value="${user.userAmount}">
+                        </div>
+                        <div class="form-group">
+                            <input class="input" type="text" name="userAddress" id="user_address" placeholder="请输入住址"
+                                   th:value="${user.userAddress}">
+                        </div>
+                        <div class="form-group">
+                            <input class="input" type="text" name="userState" id="user_state" hidden="hidden"
+                                   th:value="${user.userState}">
+                        </div>
+                        <div class="form-group">
+                            <input class="input" type="text" name="userLevel" id="user_level" hidden="hidden"
+                                   th:value="${user.userLevel}">
+                        </div>
+
+                    </form>
+                    <button id="update_btn" class="btn btn-default btn-lg">点击更新</button>
+                </div>
+                <!-- /Billing Details -->
+
+                <!-- /Order Details -->
+            </div>
+            <div class="col-md-1"></div>
+            <div class="col-md-3">
+                <img th:src="${user.userHeadImage}" th:width="200px" th:height="200px">
+                <button id="file_upload_btn" class="btn btn-success">头像上传</button>
+                <div id="input_image_div">
+                    <form id="form_image_ajax" enctype="multipart/form-data">
+                        <input id="userHeadImage" name="userHeadImage" type="file" class="file">
+                        <input type="button" class="btn btn-success" id="btn_image_ajax" value="点击上传">
+                    </form>
+                </div>
+                <!-- /row -->
+            </div>
+            <!-- /container -->
+        </div>
+    </div>
+    <!-- /SECTION -->
+</div>
+
+<!-- 脚部文件 -->
+<footer id="footer" th:fragment="footer">
+    <!-- top footer -->
+    <div class="section">
+        <!-- container -->
+        <div class="container">
+            <!-- row -->
+            <div class="row">
+                <div class="col-md-4 col-xs-6">
+                    <div class="footer">
+                        <h3 class="footer-title">关于我们</h3>
+                        <p>易恩商城秉持着方便、快捷、时尚、大气的原则，为客户提供更加优质的购物体验。</p>
+                        <ul class="footer-links">
+                            <li><a href="#"><i class="fa fa-map-marker"></i>重庆市南岸区</a></li>
+                            <li><a href="#"><i class="fa fa-phone"></i>+021-95-51-84</a></li>
+                            <li><a href="#"><i class="fa fa-envelope-o"></i>zhangzhou@yiji.com</a></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="col-md-8 col-xs-6">
+                    <div class="col-md-4 col-xs-6">
+                        <div class="footer">
+                            <h3 class="footer-title">产品</h3>
+                            <ul class="footer-links">
+                                <li><a href="#">商家入驻</a></li>
+                                <li><a href="#">产品投入</a></li>
+                                <li><a href="#">市场营销</a></li>
+                                <li><a href="#">市场拓展</a></li>
+                                <li><a href="#">欢迎光临</a></li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="col-md-4 col-xs-6">
+                        <div class="footer">
+                            <h3 class="footer-title">信息</h3>
+                            <ul class="footer-links">
+                                <li><a href="#">关于我们</a></li>
+                                <li><a href="#">加入我们</a></li>
+                                <li><a href="#">优材招聘</a></li>
+                                <li><a href="#">团队合作</a></li>
+                                <li><a href="#">人才培养</a></li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="col-md-4 col-xs-6">
+                        <div class="footer">
+                            <h3 class="footer-title">服务</h3>
+                            <ul class="footer-links">
+                                <li><a href="#">账号信息</a></li>
+                                <li><a href="#">异常描述</a></li>
+                                <li><a href="#">投诉意见</a></li>
+                                <li><a href="#">在线客服</a></li>
+                                <li><a href="#">有朋自远方来，不亦乐乎</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- /row -->
+        </div>
+        <!-- /container -->
+    </div>
+    <!-- /top footer -->
+
+</footer>
+<!-- /脚部文件 -->
+
+
+<script>
+
+
+    laydate.render({
+        elem: '#user_birth' //指定元素
+        , type: 'datetime'
+    });
+
+    /**
+     * 上传图片
+     * */
+    $("#btn_image_ajax").click(function () {
+
+        $.ajax({
+            url: '/user/fileUpload?userId=' + [[${user.id}]],
+            type: "POST",
+            cache: false,
+            data: new FormData($('#form_image_ajax')[0]),
+            processData: false,
+            contentType: false,
+            success: function (result) {
+                if (result.code == 100) {
+                    console.log(result)
+                    //window.location.href = "[[@{/user/myIndex}]]"
+                    alert("图片上传成功")
+                } else {
+                    alert(result.info)
+                    return false
+                }
+                return false
+            },
+        });
+    })
+
+    /**
+     * 更新数据
+     */
+    $("#update_btn").click(function () {
+
+        $.ajax({
+            url: '/user/update',
+            type: "POST",
+            data: $("#update_form").serialize(),
+            success: function (result) {
+                if (result.code == 100) {
+                    window.location.href = "/user/myIndex"
+                } else {
+                    alert(result.info)
+                    return false
+                }
+                return false
+            },
+        });
+    })
+
+    function toKill() {
+        $.ajax({
+            url: "/kill/toKillAjax",
+            success: function (result) {
+                if (result.code == 300) {
+                    alert(result.info)
+                } else {
+                    window.location.href = ""+result.info
+                }
+            }
+        })
+        return false
+    }
+
+    $(function () {
+        $("#input_image_div").hide()
+    })
+
+    $("#file_upload_btn").click(function () {
+        $("#input_image_div").show()
+    })
+
+    function toShopCar() {
+        window.location.href = "/shopCar/toShopCar?userId=" + $("#userId_id_val").text()
+    }
+</script>
+
+<script th:src="@{/static/js/slick.min.js}"></script>
+<script th:src="@{/static/js/nouislider.min.js}"></script>
+<script th:src="@{/static/js/jquery.zoom.min.js}"></script>
+<script th:src="@{/ststic/js/main.js}"></script>
+
+</body>
+</html>

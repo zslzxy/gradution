@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zsl.management.mapper.AddressMapper">
+
+    <select id="selectByUserId" resultType="com.zsl.common.entity.Address">
+        select * from yien_user_address where address_user_id = #{address_user_id}
+    </select>
+    
+    <insert id="insertOne" useGeneratedKeys="true" keyProperty="id">
+        insert into yien_user_address (id,address_id,address_place,address_mobile,address_name,address_user_id,raw_add_time)
+          values
+                    (null,#{addressId},#{addressPlace},#{addressMobile},#{addressName},#{addressUserId},#{rawAddTime})
+    </insert>
+    
+    <delete id="deleteBatch" >
+        delete from yien_user_Address
+        <foreach collection="addressIds" item="item_id" open="where address_id in(" close=")" separator=",">
+            #{item_id}
+        </foreach>
+    </delete>
+
+    <update id="updateByPrimaryKeySelective">
+        update yien_user_address
+        <set>
+            <if test="addressId != null">
+              address_id = #{addressId},
+            </if>
+            <if test="addressPlace != null">
+                address_place = #{addressPlace},
+            </if>
+            <if test="addressMobile != null">
+                address_mobile = #{addressMobile},
+            </if>
+            <if test="addressName != null">
+                address_name = #{addressName},
+            </if>
+            <if test="addressUserId != null">
+                address_user_id = #{addressUserId},
+            </if>
+            <if test="rawUpdateTime != null">
+                raw_update_time = #{rawUpdateTime}
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <select id="selectAddressByAddressId" resultType="com.zsl.common.entity.Address">
+        select * from yien_user_address where address_id = #{addressId}
+    </select>
+
+</mapper>

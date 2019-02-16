@@ -1,0 +1,57 @@
+spring:
+  thymeleaf:
+    cache: false
+  jackson:
+    date-format: yyyy-MM-dd HH:mm:ss
+    time-zone: GMT+8
+  servlet:
+    multipart:
+      max-file-size: 100MB
+      max-request-size: 100MB
+  http:
+    encoding:
+      charset: utf-8
+      enabled: true
+      force: true
+  messages:
+    encoding: UTF-8
+  resources:
+    static-locations: classpath:/static
+  mvc:
+    static-path-pattern: /static/**
+    date-format: yyyy-MM-dd HH:mm:ss
+
+# 配置fastdfs
+fastdfs.base.url: http://192.168.3.131:8888/   #配置的nginx的地址
+storage:
+  type: fastdfs
+  fastdfs:
+      tracker_server: 192.168.3.131:22122  #配置的fastdfs的地址
+
+# 配置dubbo
+dubbo:
+  application:
+    name: yien_mall_web
+  registry:
+    address: zookeeper://127.0.0.1:2181
+    check: false
+  monitor:
+    protocol: registry
+  consumer:
+    check: false
+    loadbalance: roundrobin
+
+# 配置对应的端口号
+server:
+  port: 8081
+
+# 配置管理管理员密码
+management.admin.password: 123456
+# 配置管理商家密码
+management.merchant.password: 123456
+
+kill.time1: 08:00:00
+kill.time2: 12:00:00
+kill.time3: 18:00:00
+kill.time4: 20:00:00
+kill.time5: 24:00:00

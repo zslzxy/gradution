@@ -1,0 +1,943 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:shiro="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+
+    <title>Electro - HTML Ecommerce Template</title>
+
+    <script th:src="@{/webjars/jquery/1.12.3/jquery.js}"></script>
+    <script th:src="@{/webjars/bootstrap/3.3.7/js/bootstrap.js}"></script>
+    <script th:src="@{/js/html5shiv.min.js}"></script>
+    <script th:src="@{/js/respond.min.js}"></script>
+    <link th:href="@{/webjars/bootstrap/3.3.7/css/bootstrap.css}" rel="stylesheet">
+    <link type="text/css" rel="stylesheet" th:href="@{/static/css/slick.css}"/>
+    <link type="text/css" rel="stylesheet" th:href="@{/static/css/slick-theme.css}"/>
+    <link type="text/css" rel="stylesheet" th:href="@{/static/css/nouislider.min.css}"/>
+    <link rel="stylesheet" th:href="@{/static/css/font-awesome.min.css}">
+    <link type="text/css" rel="stylesheet" th:href="@{/static/css/style.css}"/>
+
+    <script>
+        $(document).on("click", "#btn_image_ajax", function () {
+            alert("aa")
+            $.ajax({
+                url: '/ajax/testmanagement',
+                type: "GER",
+                success: function (result) {
+                    alert("成功")
+                },
+                error: function (result) {
+                    console.log(result)
+                    alert(result)
+                }
+            });
+        })
+    </script>
+
+</head>
+<body>
+
+<span id="userId_id" hidden="hidden"><shiro:principal property="userId"/></span>
+<span id="user_userId_val" hidden="hidden"><shiro:principal property="userId"/></span>
+
+<!-- HEADER -->
+<header>
+
+    <!-- 最上面的一排 -->
+    <div id="top-header">
+        <div class="container">
+            <ul class="header-links pull-left">
+                <li><a href="#"><i class="fa fa-phone"></i> +18875150531</a></li>
+                <li><a href="#"><i class="fa fa-envelope-o"></i> zhangzhou@yiji.com</a></li>
+                <li><a th:href="@{http://www.cque.edu.cn/}"><i class="fa fa-map-marker"></i> 重庆 重庆第二师范学院</a></li>
+            </ul>
+            <ul class="header-links pull-right" shiro:user="">
+                <li><a href="#"><i class="fa fa-dollar"></i>
+                    <shiro:principal property="userName"/>
+                    <a th:href="@{/login/logout}">，注销 </a></a></li>
+                <li><a href="#" id="update_id"><i class="fa fa-dollar"></i>修改信息</a></li>
+                <li shiro:hasAnyRoles="admin"><a th:href="@{/admin/toAdmin.html}"> <i class="fa fa-user-o"></i>管理员界面
+                </a></li>
+                <li shiro:hasAnyRoles="merchant"><a th:href="@{/merchants/toMerchants}"> <i class="fa fa-user-o"></i>商家界面
+                </a></li>
+            </ul>
+            <ul class="header-links pull-right" shiro:notAuthenticated="">
+                <li><a th:href="@{/login/toLogin}"><i class="fa fa-user-o"></i>登录 </a></li>
+                <li><a th:href="@{/regist/toRegist}"><i class="fa fa-user-o"></i>注册 </a></li>
+            </ul>
+        </div>
+    </div>
+    <!-- /TOP HEADER -->
+
+    <!-- 顶层栏 -->
+    <div id="header">
+        <!-- container -->
+        <div class="container">
+            <!-- row -->
+            <div class="row">
+                <!-- LOGO -->
+                <div class="col-md-3">
+                    <div class="header-logo">
+                        <a th:href="@{/index}" class="logo">
+                            <img th:src="@{/static/img/logo2.jpg}" alt="" height="70" width="150">
+                        </a>
+                    </div>
+                </div>
+                <!-- /LOGO -->
+
+                <!-- SEARCH BAR -->
+                <div class="col-md-6">
+                    <div class="header-search">
+                        <h1 style="color:#FFFFFF;margin: auto;margin-left: 150px">个人中心</h1>
+                    </div>
+                </div>
+                <!-- /SEARCH BAR -->
+
+                <!-- ACCOUNT -->
+                <div class="col-md-3 clearfix">
+                    <div class="header-ctn">
+
+                        <div class="dropdown">
+                            <a th:href="@{/kill/toKill}" class="dropdown-toggle">
+                                <i class="glyphicon glyphicon-indent-right"></i>
+                                <span>秒杀专场</span>
+                                <div class="qty">k</div>
+                            </a>
+                        </div>
+
+                        <div class="dropdown">
+                            <a href="javascript:void(0)" onclick="toShopCar()" class="dropdown-toggle">
+                                <i class="fa fa-shopping-cart"></i>
+                                <span>购物车</span>
+                                <div class="qty">3</div>
+                            </a>
+                        </div>
+
+                        <!-- /Cart -->
+
+                        <!-- Menu Toogle -->
+                        <div class="menu-toggle">
+                            <a href="#">
+                                <i class="fa fa-bars"></i>
+                                <span>Menu</span>
+                            </a>
+                        </div>
+                        <!-- /Menu Toogle -->
+                    </div>
+                </div>
+                <!-- /ACCOUNT -->
+            </div>
+            <!-- row -->
+        </div>
+        <!-- container -->
+    </div>
+    <!-- /MAIN HEADER -->
+</header>
+<!-- /HEADER -->
+
+<!-- NAVIGATION -->
+<nav id="navigation">
+    <!-- container -->
+    <div class="container">
+        <!-- responsive-nav -->
+        <div id="responsive-nav">
+            <!-- NAV -->
+            <ul class="main-nav nav navbar-nav">
+                <li><a href="#" class="my_nav" id="pay_info_nav">待付款</a></li>
+                <li><a href="#" class="my_nav" id="hair_info_nav">待发货</a></li>
+                <li><a href="#" class="my_nav" id="accept_info_nav">待收货</a></li>
+                <li><a href="#" class="my_nav" id="order_info_nav">订单售后</a></li>
+                <li><a href="#" class="my_nav" id="user_info_nav">个人信息</a></li>
+                <li><a href="#" class="my_nav" id="address_info_nav">收货地址</a></li>
+                <li><a href="#" class="my_nav" id="bank_info_nav">银行卡号</a></li>
+            </ul>
+            <!-- /NAV -->
+        </div>
+        <!-- /responsive-nav -->
+    </div>
+    <!-- /container -->
+</nav>
+<!-- /NAVIGATION -->
+
+
+<!-- 等待付款模块 -->
+<div class="section my_nav_next pay_info_nav">
+    <!-- container -->
+    <div class="container">
+        <!-- row -->
+        <div class="row">
+
+            <!-- 物流信息模块 -->
+            <div class="col-md-12">
+                <div class="section-title">
+                    <h3 class="title">等待付款</h3>
+                </div>
+            </div>
+            <!-- /section title -->
+
+            <!-- Products tab & slick -->
+            <div class="col-md-12">
+                <div class="row">
+                    <div class="products-tabs">
+                        <!-- tab -->
+                        <div id="tab_pay_info" class="tab-pane active">
+                            <table class="table table-hover">
+                                <thead>
+                                <th>商品名称</th>
+                                <th>快递类型</th>
+                                <th>购买数量</th>
+                                <th>交易金额</th>
+                                <th>收货地址</th>
+                                <th>收货姓名</th>
+                                <th>收货电话</th>
+                                <th>其他操作</th>
+                                </thead>
+                                <tbody id="pay_info_nav_table_tbody">
+
+                                </tbody>
+                            </table>
+                        </div>
+                        <!-- /tab -->
+                    </div>
+                </div>
+            </div>
+            <!-- Products tab & slick -->
+        </div>
+        <!-- /row -->
+    </div>
+    <!-- /container -->
+</div>
+<!-- /等待付款模块 -->
+
+<!-- 等待发货模块 -->
+<div class="section my_nav_next hair_info_nav" hidden="hidden">
+    <!-- container -->
+    <div class="container">
+        <!-- row -->
+        <div class="row">
+
+            <!-- 物流信息模块 -->
+            <div class="col-md-12">
+                <div class="section-title">
+                    <h3 class="title">等待发货</h3>
+                </div>
+            </div>
+            <!-- /section title -->
+
+            <!-- Products tab & slick -->
+            <div class="col-md-12">
+                <div class="row">
+                    <div class="products-tabs">
+                        <!-- tab -->
+                        <div id="tab_wait_apir" class="tab-pane active">
+                            <table class="table table-hover">
+                                <thead>
+                                <th></th>
+                                <th>商品名称</th>
+                                <th>商品金额</th>
+                                <th>商品数量</th>
+                                <th>姓名</th>
+                                <th>地址</th>
+                                <th>其他操作</th>
+                                </thead>
+                                <tbody id="hair_info_nav_table_tbody">
+
+                                </tbody>
+                            </table>
+                        </div>
+                        <!-- /tab -->
+                    </div>
+                </div>
+            </div>
+            <!-- Products tab & slick -->
+        </div>
+        <!-- /row -->
+    </div>
+    <!-- /container -->
+</div>
+<!-- /等待发货模块 -->
+
+<!-- 等待收货模块 -->
+<div class="section my_nav_next accept_info_nav" hidden="hidden">
+    <!-- container -->
+    <div class="container">
+        <!-- row -->
+        <div class="row">
+
+            <!-- 物流信息模块 -->
+            <div class="col-md-12">
+                <div class="section-title">
+                    <h3 class="title">等待收货</h3>
+                </div>
+            </div>
+            <!-- /section title -->
+
+            <!-- Products tab & slick -->
+            <div class="col-md-12">
+                <div class="row">
+                    <div class="products-tabs">
+                        <!-- tab -->
+                        <div id="tab_info_accept" class="tab-pane active">
+                            <table class="table table-hover">
+                                <thead>
+                                <th></th>
+                                <th>商品名称</th>
+                                <th>商品金额</th>
+                                <th>商品数量</th>
+                                <th>姓名</th>
+                                <th>地址</th>
+                                <th>其他操作</th>
+                                </thead>
+                                <tbody id="accept_info_nav_table_tbody">
+
+                                </tbody>
+                            </table>
+                        </div>
+                        <!-- /tab -->
+                    </div>
+                </div>
+            </div>
+            <!-- Products tab & slick -->
+        </div>
+        <!-- /row -->
+    </div>
+    <!-- /container -->
+</div>
+<!-- /等待收货模块 -->
+
+<!-- 订单售后模块 -->
+<div class="section my_nav_next order_info_nav" hidden="hidden">
+    <!-- container -->
+    <div class="container">
+        <!-- row -->
+        <div class="row">
+
+            <!-- 物流信息模块 -->
+            <div class="col-md-12">
+                <div class="section-title">
+                    <h3 class="title">订单评价</h3>
+                </div>
+            </div>
+            <!-- /section title -->
+
+            <!-- Products tab & slick -->
+            <div class="col-md-12">
+                <div class="row">
+                    <div class="products-tabs">
+                        <!-- tab -->
+                        <div id="tab_order_say" class="tab-pane active">
+                            <table class="table table-hover">
+                                <thead>
+                                <th></th>
+                                <th>商品名称</th>
+                                <th>商品金额</th>
+                                <th>商品数量</th>
+                                <th>姓名</th>
+                                <th>地址</th>
+                                <th>其他操作</th>
+                                </thead>
+                                <tbody id="order_info_nav_table_tbody">
+
+                                </tbody>
+                            </table>
+                        </div>
+                        <!-- /tab -->
+                    </div>
+                </div>
+            </div>
+            <!-- Products tab & slick -->
+        </div>
+        <!-- /row -->
+    </div>
+    <!-- /container -->
+</div>
+<!-- /订单售后模块 -->
+
+<!-- 个人信息模块 -->
+<div class="section my_nav_next user_info_nav" hidden="hidden">
+    <!-- container -->
+    <div class="container">
+        <!-- row -->
+        <div class="row">
+
+            <div class="col-md-12">
+                <div class="section-title">
+                    <h3 class="title">个人信息</h3>
+                    <a href="#" id="update_id_table" class="btn btn-info">修改个人信息</a>
+                    <a th:href="@{/user/toUserAddress}" class="btn btn-info">新增收货地址</a>
+                    <a th:href="@{/user/toUserBank}" class="btn btn-info">新增银行卡</a>
+                </div>
+            </div>
+            <!-- /section title -->
+
+            <!-- Products tab & slick -->
+            <div class="col-md-12">
+                <div class="row">
+                    <div class="products-tabs">
+                        <!-- tab -->
+                        <div id="tab_user_info" class="tab-pane active">
+                            <table class="table table-hover">
+                                <thead>
+                                <th>个人信息</th>
+                                <th>信息详情</th>
+
+                                </thead>
+                                <tbody>
+                                <tr>
+                                    <td>别号</td>
+                                    <td>
+                                        <shiro:principal property="userAliasName"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>真实姓名</td>
+                                    <td>
+                                        <shiro:principal property="userName"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>账号</td>
+                                    <td>
+                                        <shiro:principal property="userId"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>邮箱</td>
+                                    <td>
+                                        <shiro:principal property="userEmail"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>电话号码</td>
+                                    <td>
+                                        <shiro:principal property="userMobileNo"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>历史积分</td>
+                                    <td>
+                                        <shiro:principal property="userIntegral"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>别号</td>
+                                    <td>
+                                        <shiro:principal property="userAliasName"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>生日</td>
+                                    <td>
+                                        <shiro:principal property="userBirth"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>信誉等级</td>
+                                    <td>
+                                        <shiro:principal property="userState"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>用户类型</td>
+                                    <td>
+                                        <shiro:principal property="userLevel"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>账户余额</td>
+                                    <td>
+                                        <shiro:principal property="userAmount"/>
+                                    </td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <!-- /tab -->
+                    </div>
+                </div>
+            </div>
+            <!-- Products tab & slick -->
+        </div>
+        <!-- /row -->
+    </div>
+    <!-- /container -->
+</div>
+<!-- /个人信息模块 -->
+
+<!--收货地址模块-->
+<div class="section my_nav_next address_info_nav" hidden="hidden">
+    <!-- container -->
+    <div class="container">
+        <!-- row -->
+        <div class="row">
+
+            <!-- 物流信息模块 -->
+            <div class="col-md-12">
+                <div class="section-title">
+                    <h3 class="title">收货地址</h3>
+                </div>
+            </div>
+            <!-- /section title -->
+
+            <!-- Products tab & slick -->
+            <div class="col-md-12">
+                <div class="row">
+                    <div class="products-tabs">
+                        <!-- tab -->
+                        <div id="tab_address_tab" class="tab-pane active">
+                            <table class="table table-hover">
+                                <thead>
+                                <th><input type='checkbox' class='check_item'/></th>
+                                <th>收货地址</th>
+                                <th>收货人电话</th>
+                                <th>收货人姓名</th>
+                                <th hidden="hidden">收货地址唯一索引</th>
+                                </thead>
+                                <tbody id="tab_info_accept_tbody">
+
+                                </tbody>
+                            </table>
+                        </div>
+                        <!-- /tab -->
+                    </div>
+                </div>
+            </div>
+            <!-- Products tab & slick -->
+        </div>
+        <!-- /row -->
+    </div>
+    <!-- /container -->
+</div>
+<!--收货地址模块-->
+
+<!--银行卡号模块-->
+<div class="section my_nav_next bank_info_nav" hidden="hidden">
+    <!-- container -->
+    <div class="container">
+        <!-- row -->
+        <div class="row">
+
+            <!-- 物流信息模块 -->
+            <div class="col-md-12">
+                <div class="section-title">
+                    <h3 class="title">银行卡号</h3>
+                </div>
+            </div>
+            <!-- /section title -->
+
+            <!-- Products tab & slick -->
+            <div class="col-md-12">
+                <div class="row">
+                    <div class="products-tabs">
+                        <!-- tab -->
+                        <div id="tab_bank_tab" class="tab-pane active">
+                            <table class="table table-hover">
+                                <thead>
+                                <th><input type='checkbox' class='check_item'/></th>
+                                <th>银行账号</th>
+                                <th>银行中文名称</th>
+                                <th hidden="hidden">银行卡号唯一索引</th>
+                                </thead>
+                                <tbody id="tab_info_bank_tbody">
+
+                                </tbody>
+                            </table>
+                        </div>
+                        <!-- /tab -->
+                    </div>
+                </div>
+            </div>
+            <!-- Products tab & slick -->
+        </div>
+        <!-- /row -->
+    </div>
+    <!-- /container -->
+</div>
+<!--银行卡号模块-->
+
+<!-- 脚部文件 -->
+<footer id="footer" th:fragment="footer">
+    <!-- top footer -->
+    <div class="section">
+        <!-- container -->
+        <div class="container">
+            <!-- row -->
+            <div class="row">
+                <div class="col-md-4 col-xs-6">
+                    <div class="footer">
+                        <h3 class="footer-title">关于我们</h3>
+                        <p>易恩商城秉持着方便、快捷、时尚、大气的原则，为客户提供更加优质的购物体验。</p>
+                        <ul class="footer-links">
+                            <li><a href="#"><i class="fa fa-map-marker"></i>重庆市南岸区</a></li>
+                            <li><a href="#"><i class="fa fa-phone"></i>+021-95-51-84</a></li>
+                            <li><a href="#"><i class="fa fa-envelope-o"></i>zhangzhou@yiji.com</a></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="col-md-8 col-xs-6">
+                    <div class="col-md-4 col-xs-6">
+                        <div class="footer">
+                            <h3 class="footer-title">产品</h3>
+                            <ul class="footer-links">
+                                <li><a href="#">商家入驻</a></li>
+                                <li><a href="#">产品投入</a></li>
+                                <li><a href="#">市场营销</a></li>
+                                <li><a href="#">市场拓展</a></li>
+                                <li><a href="#">欢迎光临</a></li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="col-md-4 col-xs-6">
+                        <div class="footer">
+                            <h3 class="footer-title">信息</h3>
+                            <ul class="footer-links">
+                                <li><a href="#">关于我们</a></li>
+                                <li><a href="#">加入我们</a></li>
+                                <li><a href="#">优材招聘</a></li>
+                                <li><a href="#">团队合作</a></li>
+                                <li><a href="#">人才培养</a></li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="col-md-4 col-xs-6">
+                        <div class="footer">
+                            <h3 class="footer-title">服务</h3>
+                            <ul class="footer-links">
+                                <li><a href="#">账号信息</a></li>
+                                <li><a href="#">异常描述</a></li>
+                                <li><a href="#">投诉意见</a></li>
+                                <li><a href="#">在线客服</a></li>
+                                <li><a href="#">有朋自远方来，不亦乐乎</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- /row -->
+        </div>
+        <!-- /container -->
+    </div>
+    <!-- /top footer -->
+
+</footer>
+<!-- /脚部文件 -->
+
+<script>
+    /**
+     * 跳转到修改个人信息界面
+     */
+    $("#update_id").click(function () {
+        window.location.href = "/user/toUpdateUser/" + $("#user_userId_val").text()
+    })
+    $("#update_id_table").click(function () {
+        window.location.href = "/user/toUpdateUser/" + $("#user_userId_val").text()
+    })
+
+
+    /**
+     * 导航栏下边的内容切换
+     */
+    $(".my_nav").click(function () {
+        $(".my_nav_next").hide()
+        $(this).attr("id");
+        $("." + $(this).attr("id")).show()
+    })
+
+    /**
+     * 自动加载用户地址
+     */
+    $(function () {
+        $.ajax({
+            url: '/user/selectAddressByUserId/' + $("#userId_id").text(),
+            type: "GET",
+            success: function (result) {
+                console.log(result)
+                $.each(result, function (index, value) {
+                    var checkBoxTd = $("<td><input type='checkbox' class='check_item'/></td>");
+                    var addressPlace = $("<td></td>").append(value.addressPlace);
+                    var addressMobile = $("<td></td>").append(value.addressMobile);
+                    var addressName = $("<td></td>").append(value.addressName);
+                    var addressId = $("<td hidden='hidden'></td>").append(value.addressId);
+                    var editBtn = $("<button></button>").addClass("btn btn-primary btn-sm edit_btn_address")
+                        .append($("<span></span>").addClass("glyphicon glyphicon-pencil")).append("编辑");
+                    var delBtn = $("<button></button>").addClass("btn btn-danger btn-sm delete_btn_address")
+                        .append($("<span></span>").addClass("glyphicon glyphicon-trash")).append("删除");
+
+                    $("<tr></tr>").append(checkBoxTd)
+                        .append(addressId)
+                        .append(addressPlace)
+                        .append(addressMobile)
+                        .append(addressName)
+                        .append(editBtn)
+                        .append(delBtn)
+                        .appendTo("#tab_info_accept_tbody");
+                })
+            },
+        });
+    })
+
+    /**
+     * 修改收货地址
+     */
+    $(document).on("click", ".edit_btn_address", function () {
+        window.location.href = "/user/toUserAddress/?addressId=" + $(this).parent().find("td:eq(1)").text()
+    })
+    /**
+     * 删除收货地址
+     */
+    $(document).on("click", ".delete_btn_address", function () {
+        $.ajax({
+            url: "/user/deleteAddressByAddressId/?addressId=" + $(this).parent().find("td:eq(1)").text(),
+            type: "POST",
+            success: function (result) {
+                alert(result.info)
+                window.location.reload()
+            }
+        })
+    })
+
+
+    /**
+     * 自动加载用户银行卡
+     */
+    $(function () {
+        $.ajax({
+            url: '/user/selectBankByUserId/' + $("#userId_id").text(),
+            type: "GET",
+            success: function (result) {
+                console.log(result)
+                $.each(result, function (index, value) {
+                    var checkBoxTd = $("<td><input type='checkbox' class='check_item'/></td>");
+                    var bankCardNo = $("<td></td>").append(value.bankCardNo);
+                    var bankZhName = $("<td></td>").append(value.bankZhName);
+                    var bankId = $("<td></td>").append(value.bankId);
+                    var editBtn = $("<button></button>").addClass("btn btn-primary btn-sm edit_btn_bank")
+                        .append($("<span></span>").addClass("glyphicon glyphicon-pencil")).append("编辑");
+                    var delBtn = $("<button></button>").addClass("btn btn-danger btn-sm delete_btn_bank")
+                        .append($("<span></span>").addClass("glyphicon glyphicon-trash")).append("删除");
+
+                    $("<tr></tr>").append(checkBoxTd)
+                        .append(bankId)
+                        .append(bankZhName)
+                        .append(bankCardNo)
+                        .append(editBtn)
+                        .append(delBtn)
+                        .appendTo("#tab_info_bank_tbody");
+                })
+            },
+        });
+    })
+
+    /**
+     * 修改银行卡
+     */
+    $(document).on("click", ".edit_btn_bank", function () {
+        window.location.href = "/user/toUserBank/?bankId=" + $(this).parent().find("td:eq(1)").text()
+    })
+    /**
+     * 删除银行卡
+     */
+    $(document).on("click", ".delete_btn_bank", function () {
+        $.ajax({
+            url: "/user/deleteBankByBankId/?bankId=" + $(this).parent().find("td:eq(1)").text(),
+            type: "POST",
+            success: function (result) {
+                alert(result.info)
+                window.location.reload()
+            }
+        })
+    })
+
+
+    /**
+     * 自动加载用户的所有的在数据库中的订单
+     */
+    $(function () {
+        $.ajax({
+            url: '/order/selectOrderByUserId/' + $("#userId_id").text(),
+            type: "GET",
+            success: function (result) {
+                console.log(result.extend.map.NotPay)
+                // $("#pay_info_nav_table_tbody").empty()
+                $("#hair_info_nav_table_tbody").empty()
+                $("#accept_info_nav_table_tbody").empty()
+                $("#order_info_nav_table_tbody").empty()
+                // eachOrder(result.extend.map.NotPay, "#pay_info_nav_table_tbody")
+                eachOrder(result.extend.map.NotCourier, "#hair_info_nav_table_tbody")
+                eachOrder(result.extend.map.HasCourier, "#accept_info_nav_table_tbody")
+                eachOrder(result.extend.map.list, "#order_info_nav_table_tbody")
+            },
+        });
+    })
+
+    /**
+     * 从Redis中加载出对应用户的待付款的商品
+     */
+    $(function () {
+        findWaitPayOrder()
+    })
+
+    function findWaitPayOrder() {
+        $.ajax({
+            url: '/order/selectOrderByUserIdFromRedis/' + $("#userId_id").text(),
+            type: "GET",
+            success: function (result) {
+                console.log(result)
+                $("#pay_info_nav_table_tbody").empty()
+                eachWaitPayOrder(result.extend.list, "#pay_info_nav_table_tbody")
+            },
+        });
+        return false
+    }
+
+    /**
+     * 遍历待付款的数据
+     */
+    function eachWaitPayOrder(list, table_name) {
+        $.each(list, function (index, value) {
+            // var checkBoxTd = $("<td><input type='checkbox' class='check_item'/></td>");
+            var orderId = $("<td hidden='hidden'></td>").append(value.orderId);
+            var userId = $("<td hidden='hidden'></td>").append(value.userId);
+            var goodsId = $("<td hidden='hidden'></td>").append(value.goodsId);
+            var addressId = $("<td hidden='hidden'></td>").append(value.addressId);
+            var couriesType = $("<td></td>").append(value.couriesType);
+            var goodsNum = $("<td></td>").append(value.goodsNum);
+            var amount = $("<td></td>").append(value.amount);
+            var createTime = $("<td hidden='hidden'></td>").append(value.createTime);
+            var buyEnum = $("<td hidden='hidden'></td>").append(value.buyEnum);
+            var goodsName = $("<td></td>").append(value.goodsName);
+            var address = $("<td></td>").append(value.address);
+            var addressName = $("<td></td>").append(value.addressName);
+            var addressMobile = $("<td></td>").append(value.addressMobile);
+            var editBtn = $("<button></button>").addClass("btn btn-warning btn-sm edit_btn_order_wait")
+                .append($("<span></span>").addClass("glyphicon glyphicon-pencil")).append(" 修改");
+            var showBtn = $("<button></button>").addClass("btn btn-success btn-sm buy_btn_order_wait")
+                .append($("<span></span>").addClass("glyphicon glyphicon-th-list")).append(" 立即购买");
+            var delBtn = $("<button></button>").addClass("btn btn-danger btn-sm delete_btn_order_wait")
+                .append($("<span></span>").addClass("glyphicon glyphicon-trash")).append(" 取消");
+
+            $("<tr></tr>")
+                .append(goodsName)
+                .append(orderId)
+                .append(userId)
+                .append(goodsId)
+                .append(addressId)
+                .append(couriesType)
+                .append(goodsNum)
+                .append(amount)
+                .append(createTime)
+                .append(buyEnum)
+                .append(address)
+                .append(addressName)
+                .append(addressMobile)
+                .append(showBtn)
+                .append(editBtn)
+                .append(delBtn)
+                .appendTo(table_name)
+        })
+    }
+
+    /**
+     * 点击立即购买，发送请求去支付界面
+     */
+    $(document).on("click",".buy_btn_order_wait", function () {
+        //首先，先验证对应的订单是够已经过期了
+        //其次，如果没过期，则跳转到支付界面，进行订单的支付；如果订单已经过期了，则提示用户，并删除显示的数据
+        var orderId = $(this).parent().find("td:eq(1)").text()
+        validateOrder(orderId)
+    })
+
+    /**
+     * 验证订单是否已经过期了
+     */
+    function validateOrder(orderId) {
+        $.ajax({
+            url: "/order/validateOrder",
+            type: "POST",
+            data: {orderId: orderId},
+            success: function (result) {
+                console.log(result)
+                if (result.code == 200) {
+                    alert("订单已失效，请重新创建")
+                } else {
+                    window.location.href = "/pay/toPay/" + result.extend.buyDto.orderId
+                }
+            }
+        })
+    }
+
+    /**
+     * 取消订单，根据订单id去清空对应的缓存数据
+     */
+    $(document).on("click",".delete_btn_order_wait", function () {
+        var orderId = $(this).parent().find("td:eq(1)").text()
+        clearOrder(orderId)
+        findWaitPayOrder()
+    })
+
+    /**
+     * 当用户取消掉对应的未付款商品的时候，需要去清空缓存，并将对应的商品的
+     */
+    function clearOrder(orderId) {
+        $.ajax({
+            url: "/order/clearOrder",
+            type: "POST",
+            data: {orderId: orderId},
+            success: function (result) {
+                console.log(result)
+            }
+        })
+    }
+
+    /**
+     * 遍历其他状态的订单信息
+     */
+    function eachOrder(list, table_name) {
+        $.each(list, function (index, value) {
+            var checkBoxTd = $("<td><input type='checkbox' class='check_item'/></td>");
+            var transId = $("<td hidden='hidden'></td>").append(value.transId);
+            var transUserName = $("<td></td>").append(value.transUserName);
+            var transAddressPlace = $("<td></td>").append(value.transAddressPlace);
+            var transGoodsName = $("<td></td>").append(value.transGoodsName);
+            var transGoodsAmount = $("<td></td>").append(value.transGoodsAmount);
+            var transGoodsNum = $("<td></td>").append(value.transGoodsNum);
+            var transPayStatus = $("<td></td>").append(value.transPayStatus);
+            var transKdStatus = $("<td></td>").append(value.transKdStatus);
+            var editBtn = $("<button></button>").addClass("btn btn-primary btn-sm edit_btn_order")
+                .append($("<span></span>").addClass("glyphicon glyphicon-pencil")).append("修改订单");
+            var delBtn = $("<button></button>").addClass("btn btn-success btn-sm delete_btn_order")
+                .append($("<span></span>").addClass("glyphicon glyphicon-trash")).append("查看详情");
+
+            $("<tr></tr>")
+                .append(transId)
+                .append(checkBoxTd)
+                .append(transGoodsName)
+                .append(transGoodsAmount)
+                .append(transGoodsNum)
+                .append(transUserName)
+                .append(transAddressPlace)
+                .append(editBtn)
+                .append(delBtn)
+                .appendTo(table_name)
+        })
+    }
+
+    function toShopCar() {
+        window.location.href = "/shopCar/toShopCar?userId=" + $("#userId_id").text()
+    }
+</script>
+
+<!-- jQuery Plugins -->
+<script th:src="@{/static/js/slick.min.js}"></script>
+<script th:src="@{/static/js/nouislider.min.js}"></script>
+<script th:src="@{/static/js/jquery.zoom.min.js}"></script>
+<script th:src="@{/ststic/js/main.js}"></script>
+
+</body>
+</html>

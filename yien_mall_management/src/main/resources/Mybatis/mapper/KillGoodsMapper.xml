@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zsl.management.mapper.KillGoodsMapper">
+
+    <insert id="insertOne">
+        insert into yien_kill_goods(kill_id,kill_goods_id,kill_goods_name,kill_goods_amount,
+                                            kill_goods_time,kill_default_amount,kill_goods_state,raw_add_time,image, kill_num)
+                    values
+                                  (#{killId},#{killGoodsId},#{killGoodsName},#{killGoodsAmount},
+                                            #{killGoodsTime},#{killDefaultAmount},#{killGoodsState},#{rawAddTime},#{image},#{killNum})
+    </insert>
+
+    <select id="selectAll" resultType="com.zsl.common.entity.KillGoods">
+        select * from yien_kill_goods
+    </select>
+
+    <select id="selectByState" resultType="com.zsl.common.entity.KillGoods">
+        select * from yien_kill_goods where kill_goods_state=#{selectByState}
+    </select>
+
+    <update id="updateKillGoods">
+        update yien_kill_goods
+        <set>
+            <if test="killId != null">
+                kill_id=#{killId},
+            </if>
+            <if test="killGoodsId != null">
+                kill_goods_id=#{killGoodsId},
+            </if>
+            <if test="killGoodsName != null">
+                kill_goods_name=#{killGoodsName},
+            </if>
+            <if test="killGoodsAmount != null">
+                kill_goods_amount=#{killGoodsAmount},
+            </if>
+            <if test="killGoodsTime != null">
+                kill_goods_time=#{killGoodsTime},
+            </if>
+            <if test="killDefaultAmount != null">
+                kill_default_amount=#{killDefaultAmount},
+            </if>
+            <if test="killGoodsState != null">
+                kill_goods_state=#{killGoodsState},
+            </if>
+            <if test="rawUpdateTime != null">
+                raw_update_time=#{rawUpdateTime},
+            </if>
+            <if test="killNum != null">
+                kill_num=#{killNum},
+            </if>
+            <if test="image != null">
+                image=#{image},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <select id="selectByKillTime" resultType="com.zsl.common.entity.KillGoods">
+        select * from yien_kill_goods where kill_goods_time between #{killTime} and #{killTime}
+    </select>
+
+</mapper>

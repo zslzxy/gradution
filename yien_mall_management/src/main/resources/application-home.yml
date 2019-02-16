@@ -1,0 +1,46 @@
+spring:
+  datasource:
+    druid:
+      username: root
+      password: 123456
+      url: jdbc:mysql://localhost:3306/yien?useUnicode=true&characterEncoding=UTF-8&useSSL=false
+      driver-class-name: com.mysql.jdbc.Driver
+      db-type: com.alibaba.druid.pool.DruidDataSource
+  redis:
+    database: 1
+    host: 127.0.0.1
+    port: 6379
+    jedis:
+      pool:
+        max-idle: 8
+        min-idle: 0
+        max-active: 8
+  rabbitmq:
+    virtual-host: /
+    host: 192.168.21.158
+    port: 5672
+    username: guest
+    password: guest
+mybatis:
+  mapper-locations: classpath:Mybatis/mapper/*.xml
+  configuration:
+    map-underscore-to-camel-case: true
+#  executor-type: batch
+dubbo:
+  application:
+    name: yien_mall_management
+  registry:
+    address: 127.0.0.1:2181
+    protocol: zookeeper
+  protocol:
+    name: dubbo
+    port: 20881
+  monitor:
+    protocol: registry
+  scan:
+    base-packages: com.zsl.management
+server:
+  port: 8883
+logging:
+  level:
+    com.zsl.management.mapper: debug
